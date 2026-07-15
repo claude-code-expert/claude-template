@@ -9,3 +9,11 @@
 @mcp/context7.md
 @mcp/sequential-thinking.md
 @mcp/playwright.md
+
+## Commands
+
+`.claude/commands/` 의 슬래시 커맨드. 토큰 절약을 위해 git 명령을 직접 실행한다.
+
+- **`/git-commit [메시지]`**: 현재 브랜치에 `add -A` 후 커밋. 메시지 없으면 diff 요약으로 자동 작성.
+- **`/git-push`**: 현재 브랜치를 `git push -u origin HEAD` 로 push.
+- **`/git-pr [base]`**: commit → push → `gh pr create --base <base> --fill`. `base` 없으면 `develop`.
