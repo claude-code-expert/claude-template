@@ -24,3 +24,4 @@
 `.claude/skills/` 의 스킬. 조건에 맞는 작업이 시작되면 자동 발동한다.
 
 - **`anti-ai-slop`**: 이미지·HTML·SVG·슬라이드·PDF 같은 시각 산출물과 문서·리포트·카피 글을 만들기 직전 발동하는 품질 게이트. 그라데이션·글로우·장식 모션 등 slop 디자인과 상투어·균질 구조·불릿 남발 등 AI 글쓰기 지문을 차단한다. 세부 기준은 `references/`(visual-craft·slides-pdf·writing-tells)로 분리.
+- **`scaffold`**: "next.js/go/rust/spring/typescript/react/vue 스캐폴딩 만들어줘" 류 발화에 발동. 손으로 템플릿을 찍지 않고 각 생태계 공식 스캐폴더(create-next-app·cargo·create-vue·Spring Initializr)를 최신 명령으로 실행한 뒤, CLI가 안 만드는 구조·린터·CI를 얹는다. 죽은 도구(CRA 등) 차단 + YAGNI 구조 강제. 세부는 `references/`(js-ts·go-rust·java-spring).
