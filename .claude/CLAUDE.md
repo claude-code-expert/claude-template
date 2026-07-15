@@ -35,4 +35,8 @@
 
 - **`precompact-handoff.py`** (PreCompact): 컨텍스트 압축 직전 기계적 스냅샷(브랜치·변경파일·최근 사용자 메시지)을 `.handoff.md`에 덧붙인다. PreCompact는 모델을 부를 수 없어(컨텍스트 주입 미지원) 스냅샷만 남기고, 사람이 읽을 인계문 정리는 `handoff` 스킬이 한다. `.handoff.md`는 세션 로컬이라 `.gitignore` 처리.
 - **`changelog-reminder.py`** (PreToolUse/Bash): `git push`·`gh pr create` 직전, 나갈 커밋에 의존성·빌드 매니페스트 변경이 있는데 `changelog/changelog.md` 갱신이 없으면 비차단 리마인더를 모델에 주입한다. push를 막지 않는다(defer).
+- **`protect-paths.sh`** (PreToolUse/Edit|Write): `.env`·`credentials`·`.git/config`·ssh 키·`*.pem` 등 민감 파일 편집을 `exit 2`로 차단하고 사유를 Claude에 전달한다. 그 외 경로는 통과.
+- **`format-on-edit.sh`** (PostToolUse/Edit|Write): 편집된 JS/TS 파일을 `eslint --fix` + `prettier --write`로 자동 정리. 차단 없음, 도구·설정 없으면 조용히 통과.
+- **`lint-verify.sh`** (PostToolUse/Edit|Write): 편집된 `.ts/.tsx`에 ESLint 위반이 남으면 `exit 2`로 내용을 Claude에 피드백해 고치게 한다. `format-on-edit` 다음에 돌고, eslint 없으면 오탐 방지로 통과.
+- **`typecheck-on-stop.sh`** (Stop): 응답 종료 시 `tsc --noEmit` 전체 검사, 에러 있으면 `exit 2`로 계속 작업시켜 고치게 한다. `stop_hook_active`로 무한 루프 방지, tsconfig·tsc 없으면 통과.
 - **`notify.sh`** (Stop / Notification / SubagentStop): WSL2에서 `powershell.exe`로 Windows 토스트 알림 + 벨소리를 낸다. **응답 완료**(Stop), **입력·옵션 선택 대기**(Notification), **서브에이전트 완료**(SubagentStop) 세 경우에 발동. 소리는 `SoundPlayer.PlaySync` 로 동기 재생해 헤드리스 PowerShell 에서도 확실히 난다. 볼륨은 `CLAUDE_NOTIFY_VOLUME`(기본 100=원음, 100 미만이면 wav 진폭을 줄이고 100 초과면 증폭·클램프), 벨소리는 `CLAUDE_NOTIFY_SOUND`(Windows wav 경로, 기본 `Windows Notify.wav`)로 교체. 토스트 배너가 안 뜨고 알림 센터에만 쌓이면 Windows 의 **집중 지원/방해 금지**를 끄고 앱별 알림에서 **Windows PowerShell** 의 배너 표시를 켜야 한다(코드로 못 뚫는 OS 설정). 실패해도 exit 0으로 세션을 막지 않는다.
