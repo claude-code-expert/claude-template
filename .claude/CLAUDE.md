@@ -17,3 +17,4 @@
 - **`/git-commit [메시지]`**: 현재 브랜치에 `add -A` 후 커밋. 메시지 없으면 diff 요약으로 자동 작성.
 - **`/git-push`**: 현재 브랜치를 `git push -u origin HEAD` 로 push.
 - **`/git-pr [base]`**: commit → push → `gh pr create --base <base> --fill`. `base` 없으면 `develop`.
+- **`/check [명령]`**: lint + typecheck + test 를 한 번에 실행하고 실패만 보고. 프로젝트 종류 자동 감지, 인자로 명령 직접 지정 가능.
