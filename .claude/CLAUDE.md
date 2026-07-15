@@ -18,3 +18,9 @@
 - **`/git-push`**: 현재 브랜치를 `git push -u origin HEAD` 로 push.
 - **`/git-pr [base]`**: commit → push → `gh pr create --base <base> --fill`. `base` 없으면 `develop`.
 - **`/check [명령]`**: lint + typecheck + test 를 한 번에 실행하고 실패만 보고. 프로젝트 종류 자동 감지, 인자로 명령 직접 지정 가능.
+
+## Skills
+
+`.claude/skills/` 의 스킬. 조건에 맞는 작업이 시작되면 자동 발동한다.
+
+- **`anti-ai-slop`**: 이미지·HTML·SVG·슬라이드·PDF 같은 시각 산출물과 문서·리포트·카피 글을 만들기 직전 발동하는 품질 게이트. 그라데이션·글로우·장식 모션 등 slop 디자인과 상투어·균질 구조·불릿 남발 등 AI 글쓰기 지문을 차단한다. 세부 기준은 `references/`(visual-craft·slides-pdf·writing-tells)로 분리.
