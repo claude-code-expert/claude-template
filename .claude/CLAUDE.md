@@ -27,6 +27,7 @@
 - **`scaffold`**: "next.js/go/rust/spring/typescript/react/vue 스캐폴딩 만들어줘" 류 발화에 발동. 손으로 템플릿을 찍지 않고 각 생태계 공식 스캐폴더(create-next-app·cargo·create-vue·Spring Initializr)를 최신 명령으로 실행한 뒤, CLI가 안 만드는 구조·린터·CI를 얹는다. 죽은 도구(CRA 등) 차단 + YAGNI 구조 강제. 세부는 `references/`(js-ts·go-rust·java-spring).
 - **`handoff`**: 세션 인계. "핸드오프", "이어서 작업", "인계/컨텍스트 정리" 발화에 발동해 진행상황·실패·다음 할 일을 `.handoff.md`(레포 루트)에 남긴다. 아래 `precompact-handoff` 훅과 짝을 이룬다.
 - **`changelog`**: 되돌릴 수 없는 결정(아키텍처·의존성·API 계약)과 근거를 `changelog/changelog.md`에 append-only로 기록. 아래 `changelog-reminder` 훅이 push/PR 직전 매니페스트 변경을 감지하면 이 스킬로 기록할지 검토한다.
+- **`token-usage`**: "토큰 얼마나 사용", "토큰 측정" 류 발화에 발동. `.claude/scripts/token-usage.py`로 세션 transcript의 토큰을 input·output·cache로 나눠 집계하고 총합을 낸다.
 
 ## Hooks
 
