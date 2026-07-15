@@ -2,7 +2,7 @@
 # Windows(WSL2) 알림 훅. stdin 으로 들어온 훅 JSON payload 를 읽어
 # Windows 토스트 알림을 띄우고, 볼륨 조절 가능한 벨소리를 재생한다.
 #
-# 사용: notify.sh "<라벨>" ["<사운드 파일명>"]
+# 사용: notify-win.sh "<라벨>" ["<사운드 파일명>"]
 #   라벨    = payload 에 title/message 없을 때 fallback
 #   사운드  = C:\Windows\Media\ 안의 wav 파일명(예: "chimes.wav"). 이벤트별로 다르게 준다.
 #   - Stop        : 응답 완료      (Windows Notify.wav)

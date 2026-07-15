@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify.sh\" \"응답 완료\" \"Windows Notify.wav\"",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-win.sh\" \"응답 완료\" \"Windows Notify.wav\"",
             "timeout": 15
           },
           {
@@ -74,7 +74,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify.sh\" \"입력이 필요합니다\" \"chimes.wav\"",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-win.sh\" \"입력이 필요합니다\" \"chimes.wav\"",
             "timeout": 15
           }
         ]
@@ -86,7 +86,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify.sh\" \"에이전트 완료\" \"Windows Notify.wav\"",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-win.sh\" \"에이전트 완료\" \"Windows Notify.wav\"",
             "timeout": 15
           }
         ]
