@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCP 설치·구성 가이드 — 강의 1편</title>
+<!--
+  폰트 선택 이유:
+  본문 IBM Plex Sans — 한글/영문/숫자 균형이 좋고 UI·문서용으로 설계돼 장문 가독성이 안정적.
+  코드 JetBrains Mono — 명령어·JSON에서 0/O, 1/l 구분이 명확한 개발자용 모노스페이스.
+  로딩 실패 시 system 폴백으로 떨어진다.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-900:#111827; --ink-700:#374151; --ink-600:#4b5563;
+    --ink-500:#6b7280; --ink-400:#9ca3af;
+    --line:#e5e7eb; --line-strong:#d1d5db;
+    --bg:#ffffff; --bg-soft:#f9fafb; --code-bg:#f6f7f9;
+    --accent:#2563eb; --accent-strong:#1d4ed8;
+    --ok:#15803d; --warn:#b45309; --danger:#b91c1c;
+    --sans:"IBM Plex Sans KR", ui-sans-serif, system-ui, "Segoe UI", "Malgun Gothic", sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink-700);
+    font-family:var(--sans); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px; margin:0 auto; padding:0 24px; display:grid;
+    grid-template-columns:232px minmax(0,1fr); gap:48px;}
+  @media(max-width:860px){.wrap{grid-template-columns:1fr; gap:0}}
+
+  /* ── 사이드 목차 ── */
+  aside{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto;
+    padding:40px 0 40px; border-right:1px solid var(--line);}
+  @media(max-width:860px){aside{position:static; height:auto; border-right:0;
+    border-bottom:1px solid var(--line); padding:24px 0}}
+  .series{font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--ink-400); font-weight:600; margin:0 0 4px}
+  aside h1{font-size:18px; line-height:1.3; color:var(--ink-900);
+    margin:0 0 24px; font-weight:700;}
+  nav a{display:block; padding:6px 12px 6px 0; color:var(--ink-500);
+    text-decoration:none; font-size:14px; border-left:2px solid transparent;
+    padding-left:12px; transition:color .12s, border-color .12s;}
+  nav a:hover{color:var(--ink-900)}
+  nav a .n{color:var(--ink-400); font-variant-numeric:tabular-nums; margin-right:8px}
+
+  /* ── 본문 ── */
+  main{padding:56px 0 120px; max-width:none;}
+  main > *{max-width:68ch}
+  .lede{font-size:20px; line-height:1.55; color:var(--ink-600); margin:0 0 8px}
+  header.doc h1{font-size:39px; line-height:1.12; letter-spacing:-0.02em;
+    color:var(--ink-900); font-weight:700; margin:8px 0 20px;}
+  header.doc .meta{font-size:13px; color:var(--ink-400); margin:0 0 40px;
+    padding-bottom:32px; border-bottom:1px solid var(--line);}
+  header.doc .meta b{color:var(--ink-600); font-weight:600}
+
+  section{padding:48px 0 8px; border-top:1px solid var(--line); margin-top:8px}
+  section:first-of-type{border-top:0}
+  h2{font-size:28px; line-height:1.2; letter-spacing:-0.01em; color:var(--ink-900);
+    font-weight:700; margin:0 0 6px; scroll-margin-top:24px}
+  h2 .kicker{display:block; font-size:13px; font-weight:600; letter-spacing:.03em;
+    color:var(--accent); text-transform:uppercase; margin-bottom:8px}
+  h3{font-size:20px; color:var(--ink-900); font-weight:600; margin:36px 0 8px}
+  h4{font-size:15px; color:var(--ink-900); font-weight:600; margin:24px 0 4px}
+  p{margin:0 0 16px}
+  strong{color:var(--ink-900); font-weight:600}
+  a{color:var(--accent); text-decoration:none}
+  a:hover{color:var(--accent-strong); text-decoration:underline}
+  code{font-family:var(--mono); font-size:.88em; background:var(--code-bg);
+    border:1px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink-900)}
+
+  ul,ol{margin:0 0 16px; padding-left:22px}
+  li{margin:6px 0}
+  li::marker{color:var(--ink-400)}
+  ul.tight li{margin:3px 0}
+
+  /* ── 코드 블록 ── */
+  .code{position:relative; margin:16px 0 24px; max-width:68ch}
+  .code pre{margin:0; background:var(--code-bg); border:1px solid var(--line);
+    border-radius:8px; padding:16px 18px; overflow-x:auto;}
+  .code pre code{background:none; border:0; padding:0; font-size:13.5px;
+    line-height:1.65; color:var(--ink-900)}
+  .code .lbl{display:flex; justify-content:space-between; align-items:center;
+    font-size:12px; color:var(--ink-500); margin-bottom:6px}
+  .code .lbl .path{font-family:var(--mono); color:var(--ink-600)}
+  .copy{font-family:var(--sans); font-size:12px; color:var(--ink-500);
+    background:none; border:1px solid var(--line); border-radius:5px;
+    padding:2px 9px; cursor:pointer; transition:color .12s, border-color .12s, background .12s}
+  .copy:hover{color:var(--ink-900); border-color:var(--line-strong)}
+  .copy.done{color:var(--ok); border-color:var(--ok)}
+  .tok-c{color:var(--ink-400)} /* 주석 */
+  .tok-k{color:var(--accent-strong); font-weight:500} /* 키/명령 */
+  .tok-s{color:var(--ok)} /* 문자열 */
+
+  /* ── 표 ── */
+  .tblwrap{overflow-x:auto; margin:16px 0 24px; max-width:68ch}
+  table{border-collapse:collapse; width:100%; font-size:14px}
+  th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--line);
+    vertical-align:top}
+  th{color:var(--ink-500); font-weight:600; font-size:12.5px; letter-spacing:.02em;
+    text-transform:uppercase; border-bottom:1px solid var(--line-strong)}
+  td code{font-size:12.5px}
+  tr td:first-child{white-space:nowrap; color:var(--ink-900); font-weight:500}
+
+  /* ── 콜아웃 ── */
+  .note{margin:20px 0 24px; padding:14px 18px; border:1px solid var(--line);
+    border-left:3px solid var(--ink-400); border-radius:0 6px 6px 0;
+    background:var(--bg-soft); font-size:14.5px; max-width:68ch}
+  .note.warn{border-left-color:var(--warn)}
+  .note.ok{border-left-color:var(--ok)}
+  .note p:last-child{margin-bottom:0}
+  .note .tag{display:block; font-size:12px; font-weight:600; letter-spacing:.03em;
+    text-transform:uppercase; margin-bottom:4px; color:var(--ink-500)}
+  .note.warn .tag{color:var(--warn)}
+  .note.ok .tag{color:var(--ok)}
+
+  .steps{counter-reset:s; list-style:none; padding-left:0; margin:16px 0 24px}
+  .steps>li{counter-increment:s; position:relative; padding-left:38px; margin:14px 0}
+  .steps>li::before{content:counter(s); position:absolute; left:0; top:-1px;
+    width:26px; height:26px; border:1px solid var(--line-strong); border-radius:50%;
+    text-align:center; line-height:24px; font-size:13px; font-weight:600;
+    color:var(--ink-600); font-family:var(--mono)}
+
+  footer{margin-top:64px; padding-top:28px; border-top:1px solid var(--line);
+    font-size:13px; color:var(--ink-400); max-width:68ch}
+  footer a{color:var(--ink-500)}
+  .next{display:flex; justify-content:space-between; gap:16px; margin-top:8px;
+    font-size:14px}
+  kbd{font-family:var(--mono); font-size:12px; background:#fff; border:1px solid var(--line-strong);
+    border-bottom-width:2px; border-radius:4px; padding:1px 6px; color:var(--ink-700)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<aside>
+  <p class="series">Claude 하네스 강의 · 01</p>
+  <h1>MCP 설치·구성 가이드</h1>
+  <nav>
+    <a href="#what"><span class="n">01</span>MCP란</a>
+    <a href="#three"><span class="n">02</span>추가 3가지 방법</a>
+    <a href="#scope"><span class="n">03</span>스코프</a>
+    <a href="#json"><span class="n">04</span>.mcp.json 직접</a>
+    <a href="#cli"><span class="n">05</span>claude mcp add</a>
+    <a href="#minimum"><span class="n">06</span>개발 최소 3종</a>
+    <a href="#prompt"><span class="n">07</span>context7 구성 프롬프트</a>
+    <a href="#check"><span class="n">08</span>점검·트러블슈팅</a>
+  </nav>
+</aside>
+
+<main>
+  <header class="doc">
+    <p class="lede">MCP는 Claude에게 "손"을 붙이는 표준 규격이다. 문서를 읽고, 브라우저를 몰고, DB를 건드리게 만든다.</p>
+    <h1>MCP 설치·구성 가이드</h1>
+    <p class="meta">강의 1편 · 대상 <b>Claude Code 사용자</b> · 명령·설정 문법은 <b>공식 문서(anthropics/claude-code)</b> 기준으로 확인함</p>
+  </header>
+
+  <!-- 01 -->
+  <section id="what">
+    <h2><span class="kicker">개념</span>MCP란 무엇인가</h2>
+    <p><strong>MCP(Model Context Protocol)</strong>는 Claude 같은 모델과 외부 도구·데이터 소스를 잇는 개방 규격이다. 모델 자체는 파일을 못 읽고 네트워크도 못 탄다. MCP 서버가 그 능력을 "도구(tool)"로 노출하면, Claude가 대화 중에 그 도구를 호출한다.</p>
+    <p>비유하자면 USB-C 같은 것이다. 서버마다 붙이는 방식이 제각각이면 관리가 안 되니, <strong>연결 규격 하나로 통일</strong>해 두고 서버만 갈아 끼운다. 문서 조회 서버, 브라우저 자동화 서버, 사내 DB 서버를 같은 방식으로 등록한다.</p>
+
+    <h3>언제 붙이나 / 언제 안 붙이나</h3>
+    <div class="tblwrap">
+    <table>
+      <thead><tr><th>붙일 때</th><th>안 붙일 때</th></tr></thead>
+      <tbody>
+        <tr><td>최신 라이브러리 문서 조회</td><td>모델이 이미 잘 아는 일반 개념 설명</td></tr>
+        <tr><td>실제 브라우저로 E2E 확인</td><td>단순 코드 한 줄 수정</td></tr>
+        <tr><td>사내 시스템·DB·API 연동</td><td>도구 없이 파일 편집으로 끝나는 작업</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note">
+      <span class="tag">판단 기준</span>
+      <p>서버를 많이 붙일수록 각 도구 설명이 컨텍스트를 먹고 선택지가 늘어 오히려 느려진다. <strong>"이 서버가 없으면 못 하는 일"이 있을 때만</strong> 붙인다. 개발용 최소 구성은 <a href="#minimum">06번</a>에서 3종으로 좁힌다.</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section id="three">
+    <h2><span class="kicker">개요</span>서버를 추가하는 3가지 방법</h2>
+    <p>등록 경로는 셋이다. 결과물은 결국 같은 JSON 설정이지만, <strong>누가 쓰고 어디에 커밋되느냐</strong>가 다르다.</p>
+    <div class="tblwrap">
+    <table>
+      <thead><tr><th>방법</th><th>무엇</th><th>이럴 때</th></tr></thead>
+      <tbody>
+        <tr><td><code>.mcp.json</code></td><td>프로젝트 루트에 설정 파일을 직접 작성</td><td>팀이 공유할 서버. 레포에 커밋해 모두 같은 구성을 쓴다</td></tr>
+        <tr><td><code>claude mcp add</code></td><td>CLI 대화형/인자형 명령으로 등록</td><td>내 로컬에만, 빠르게. 손으로 JSON 안 짜고 싶을 때</td></tr>
+        <tr><td><code>claude mcp add-json</code></td><td>JSON 한 덩어리를 그대로 붙여 등록</td><td>README에 나온 설정 블록을 복붙할 때</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>초심자는 <strong>대화형 <code>claude mcp add</code></strong>로 시작하고, 팀에 고정하고 싶어지면 <strong><code>.mcp.json</code></strong>으로 옮기는 흐름이 자연스럽다.</p>
+  </section>
+
+  <!-- 03 -->
+  <section id="scope">
+    <h2><span class="kicker">범위</span>스코프 — 어디까지 보이게 할 것인가</h2>
+    <p>같은 서버라도 <strong>스코프</strong>에 따라 노출 범위가 다르다. 등록할 때 <code>--scope</code>로 정한다.</p>
+    <div class="tblwrap">
+    <table>
+      <thead><tr><th>스코프</th><th>범위</th><th>저장 위치</th></tr></thead>
+      <tbody>
+        <tr><td><code>local</code></td><td>나 · 이 프로젝트에서만 (기본값)</td><td>내 사용자 설정 안의 프로젝트별 항목</td></tr>
+        <tr><td><code>project</code></td><td>이 프로젝트를 여는 <strong>모두</strong></td><td><code>.mcp.json</code> (레포에 커밋)</td></tr>
+        <tr><td><code>user</code></td><td>나 · 내 <strong>모든</strong> 프로젝트</td><td>사용자 전역 설정</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note warn">
+      <span class="tag">주의</span>
+      <p><code>project</code> 스코프(<code>.mcp.json</code>)는 레포에 커밋된다. <strong>API 키·토큰을 값에 직접 박지 말 것.</strong> 아래 <a href="#json">04번</a>처럼 <code>${ENV_VAR}</code> 확장으로 빼내고, 실제 값은 각자 환경변수에 둔다.</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section id="json">
+    <h2><span class="kicker">방법 A</span><code>.mcp.json</code> 직접 작성</h2>
+    <p>프로젝트 루트에 <code>.mcp.json</code>을 만들고 최상위 <code>mcpServers</code> 아래에 서버를 나열한다. Claude Code가 그 프로젝트를 열 때 자동으로 읽는다.</p>
+
+    <h3>stdio 서버 — 로컬 프로세스 (npx 배포판)</h3>
+    <p>대부분의 오픈소스 MCP는 npm 패키지로 배포된다. <code>npx</code>로 실행하는 게 표준이다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">.mcp.json</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-k">{</span>
+  <span class="tok-k">"mcpServers"</span>: {
+    <span class="tok-k">"filesystem"</span>: {
+      <span class="tok-k">"command"</span>: <span class="tok-s">"npx"</span>,
+      <span class="tok-k">"args"</span>: [<span class="tok-s">"-y"</span>, <span class="tok-s">"@modelcontextprotocol/server-filesystem"</span>, <span class="tok-s">"/path"</span>]
+    }
+  }
+}</code></pre>
+    </div>
+
+    <h3>http 서버 — 원격 엔드포인트 + 토큰</h3>
+    <p>REST/HTTP로 붙는 서버는 <code>type: "http"</code>와 <code>url</code>을 준다. 인증 헤더는 환경변수로 뺀다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">.mcp.json</span><button class="copy">복사</button></div>
+<pre><code>{
+  <span class="tok-k">"mcpServers"</span>: {
+    <span class="tok-k">"api"</span>: {
+      <span class="tok-k">"type"</span>: <span class="tok-s">"http"</span>,
+      <span class="tok-k">"url"</span>: <span class="tok-s">"https://api.example.com/mcp"</span>,
+      <span class="tok-k">"headers"</span>: {
+        <span class="tok-k">"Authorization"</span>: <span class="tok-s">"Bearer ${API_TOKEN}"</span>
+      }
+    }
+  }
+}</code></pre>
+    </div>
+
+    <h3>환경변수 확장</h3>
+    <p>값 안에서 <code>${VAR}</code>로 환경변수를 끌어온다. 기본값은 <code>${VAR:-default}</code> 형태로 준다. 비밀값을 파일에서 분리하는 핵심 장치다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">.mcp.json — env 블록</span><button class="copy">복사</button></div>
+<pre><code>{
+  <span class="tok-k">"mcpServers"</span>: {
+    <span class="tok-k">"db"</span>: {
+      <span class="tok-k">"command"</span>: <span class="tok-s">"npx"</span>,
+      <span class="tok-k">"args"</span>: [<span class="tok-s">"-y"</span>, <span class="tok-s">"some-db-mcp"</span>],
+      <span class="tok-k">"env"</span>: {
+        <span class="tok-k">"DATABASE_URL"</span>: <span class="tok-s">"${DB_URL}"</span>,
+        <span class="tok-k">"LOG_LEVEL"</span>: <span class="tok-s">"${LOG_LEVEL:-info}"</span>
+      }
+    }
+  }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section id="cli">
+    <h2><span class="kicker">방법 B</span><code>claude mcp add</code> CLI</h2>
+    <p>JSON을 손으로 안 짜고 명령 한 줄로 등록한다. 세 가지 형태가 있다.</p>
+
+    <h3>① 대화형 마법사</h3>
+    <p>인자 없이 실행하면 단계별로 물어본다. 처음이라면 이게 제일 안전하다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code>claude mcp add</code></pre>
+    </div>
+
+    <h3>② 인자형 — stdio 서버</h3>
+    <p><code>--</code> 뒤에 실제 실행 명령을 적는다. <code>--</code>는 Claude 플래그와 서버 명령을 가르는 구분선이다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-c"># 형식: claude mcp add [--scope ..] [--env K=V] &lt;이름&gt; -- &lt;명령&gt; [인자...]</span>
+claude mcp add <span class="tok-k">--scope</span> project sequential-thinking \
+  -- npx -y @modelcontextprotocol/server-sequential-thinking</code></pre>
+    </div>
+
+    <h3>③ 인자형 — http 서버</h3>
+    <div class="code">
+      <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code>claude mcp add <span class="tok-k">--transport</span> http context7 https://mcp.context7.com/mcp</code></pre>
+    </div>
+
+    <h3>④ JSON 통째로 — <code>add-json</code></h3>
+    <p>README에 나온 설정 블록을 그대로 넘길 때.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code>claude mcp add-json playwright '{"command":"npx","args":["-y","@playwright/mcp@latest"]}'</code></pre>
+    </div>
+
+    <h4>등록 확인</h4>
+    <ul class="tight">
+      <li><code>claude mcp list</code> — 등록된 서버와 연결 상태를 CLI에서 확인</li>
+      <li>세션 안에서 <code>/mcp</code> — 현재 붙은 서버·도구 목록과 상태를 확인</li>
+    </ul>
+    <div class="note ok">
+      <span class="tag">팁</span>
+      <p>서버가 <code>list</code>엔 뜨는데 도구가 안 보이면 대개 <strong>명령·경로·토큰</strong> 문제다. <code>claude mcp list</code>의 상태 표시와 서버 실행 명령을 먼저 의심한다.</p>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section id="minimum">
+    <h2><span class="kicker">실전</span>개발에 필요한 최소 MCP 3종</h2>
+    <p>이 템플릿 레포가 이미 큐레이션한 구성이다. <strong>문서·사고·브라우저</strong> 세 축이면 대부분의 개발 작업을 덮는다. 각 서버의 자세한 사용법은 레포의 <code>.claude/mcp/*.md</code>에 있다.</p>
+
+    <div class="note">
+      <span class="tag">서버를 어디서 찾나</span>
+      <p>필요한 서버가 있는지 먼저 레지스트리에서 검색한다. 설치 명령·설정 블록을 그대로 제공한다.</p>
+      <ul class="tight" style="margin-bottom:0">
+        <li><a href="https://smithery.ai/" target="_blank" rel="noopener">Smithery</a> — MCP 서버 검색·원클릭 설치. 클라이언트별 설치 명령을 생성해준다.</li>
+        <li><a href="https://mcpmarket.com/ko" target="_blank" rel="noopener">MCP Market (한국어)</a> — 카테고리별 서버 목록과 설정 예시를 한국어로 제공.</li>
+      </ul>
+    </div>
+    <p>레지스트리에서 고른 서버는 아래 흐름으로 붙인다. 제공된 설치 명령은 <a href="#prompt">07번 프롬프트</a>로 최신 여부를 한 번 더 검증하면 안전하다.</p>
+
+    <h3>context7 — 최신 공식 문서 조회</h3>
+    <p>라이브러리 API·설정·마이그레이션을 <strong>학습 데이터가 아니라 최신 문서</strong>에서 가져온다. 잘 아는 프레임워크라도 버전이 바뀌었을 수 있으니 웹 검색보다 우선한다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code>claude mcp add --transport http context7 https://mcp.context7.com/mcp
+<span class="tok-c"># 또는 stdio: claude mcp add context7 -- npx -y @upstash/context7-mcp</span></code></pre>
+    </div>
+
+    <h3>sequential-thinking — 다단계 사고</h3>
+    <p>설계·디버깅·리팩터링처럼 <strong>계획을 세우고 도중에 방향을 고쳐야</strong> 하는 작업에서 생각을 단계로 쪼갠다. 단순 조회엔 쓰지 않는다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code>claude mcp add sequential-thinking \
+  -- npx -y @modelcontextprotocol/server-sequential-thinking</code></pre>
+    </div>
+
+    <h3>playwright — 실제 브라우저 구동</h3>
+    <p>E2E 확인, 폼 입력, 스크린샷, 콘솔·네트워크 검사. <strong>접근성 트리(snapshot)</strong> 기반으로 요소를 잡으므로 좌표가 아니라 <code>ref</code>로 조작한다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code>claude mcp add playwright -- npx -y @playwright/mcp@latest</code></pre>
+    </div>
+
+    <h4>셋을 한 번에 — 팀 공유용 <code>.mcp.json</code></h4>
+    <div class="code">
+      <div class="lbl"><span class="path">.mcp.json (프로젝트 루트)</span><button class="copy">복사</button></div>
+<pre><code>{
+  <span class="tok-k">"mcpServers"</span>: {
+    <span class="tok-k">"context7"</span>: {
+      <span class="tok-k">"type"</span>: <span class="tok-s">"http"</span>,
+      <span class="tok-k">"url"</span>: <span class="tok-s">"https://mcp.context7.com/mcp"</span>
+    },
+    <span class="tok-k">"sequential-thinking"</span>: {
+      <span class="tok-k">"command"</span>: <span class="tok-s">"npx"</span>,
+      <span class="tok-k">"args"</span>: [<span class="tok-s">"-y"</span>, <span class="tok-s">"@modelcontextprotocol/server-sequential-thinking"</span>]
+    },
+    <span class="tok-k">"playwright"</span>: {
+      <span class="tok-k">"command"</span>: <span class="tok-s">"npx"</span>,
+      <span class="tok-k">"args"</span>: [<span class="tok-s">"-y"</span>, <span class="tok-s">"@playwright/mcp@latest"</span>]
+    }
+  }
+}</code></pre>
+    </div>
+    <h4>npx 직접 설치 형태와 플랫폼별 변형</h4>
+    <p>공식 저장소(예: <a href="https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking" target="_blank" rel="noopener">modelcontextprotocol/servers</a>)는 <code>claude mcp add</code> 없이 <strong>설정 블록에 npx를 직접 적는 형태</strong>와, Windows·docker 변형을 함께 보여준다. <code>.mcp.json</code>에 넣는 값은 위 통합 설정의 <code>command</code>/<code>args</code>와 동일하다 — 다음은 그 원형과 변형이다.</p>
+    <div class="code">
+      <div class="lbl"><span class="path">sequential-thinking — 원형·변형</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-c"># 직접 실행 (설정의 command:"npx", args:[...] 가 이것과 같다)</span>
+npx -y @modelcontextprotocol/server-sequential-thinking
+
+<span class="tok-c"># 순수 Windows에서 npx가 command 로 안 먹으면 cmd 로 감싼다</span>
+<span class="tok-c">#   "command": "cmd", "args": ["/c","npx","-y","@modelcontextprotocol/server-sequential-thinking"]</span>
+
+<span class="tok-c"># docker 대안</span>
+<span class="tok-c">#   "command": "docker", "args": ["run","--rm","-i","mcp/sequentialthinking"]</span></code></pre>
+    </div>
+    <div class="note">
+      <span class="tag">플랫폼</span>
+      <p>WSL2·macOS·리눅스에서는 <code>command: "npx"</code> 그대로 쓴다. <code>cmd /c</code> 래핑은 <strong>네이티브 Windows 클라이언트</strong>에서 npx를 못 찾을 때만 필요하다. docker 형태는 Node 없이 컨테이너로 돌릴 때.</p>
+    </div>
+    <div class="note">
+      <span class="tag">확인 습관</span>
+      <p>패키지명·전송 방식은 서버마다 바뀐다. 붙이기 전 각 서버의 README에서 최신 명령을 확인하라 — 그걸 <strong>자동으로 하는 방법</strong>이 바로 다음 07번이다.</p>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section id="prompt">
+    <h2><span class="kicker">자동화</span>context7로 최신 정보 조회 후 구성하는 프롬프트</h2>
+    <p>MCP 설치 명령은 자주 바뀐다. 굳이 외우지 말고, <strong>context7으로 최신 문서를 먼저 조회한 뒤 그 결과로 설정을 만들게</strong> Claude에게 시킨다. 아래 프롬프트를 그대로 붙여 넣고 <code>&lt;서버이름&gt;</code>만 바꾼다.</p>
+
+    <div class="code">
+      <div class="lbl"><span class="path">Claude Code에 붙여넣기</span><button class="copy">복사</button></div>
+<pre><code>&lt;서버이름&gt; MCP를 이 프로젝트에 붙이고 싶어. 다음 순서로 해줘.
+
+1. context7으로 "&lt;서버이름&gt; MCP server installation" 최신 문서를 조회해서
+   - 정확한 실행 명령(npx 패키지명 또는 http url)
+   - 필요한 환경변수/토큰
+   을 먼저 확인해줘. 기억이 아니라 조회한 문서를 근거로 삼아.
+
+2. 확인한 내용으로 .mcp.json 의 mcpServers 항목을 작성해줘.
+   - 팀 공유가 목적이니 project 스코프(.mcp.json)로.
+   - 토큰·키는 값에 직접 넣지 말고 ${ENV_VAR} 확장으로 빼줘.
+
+3. 등록 후 확인 방법(claude mcp list / /mcp)과,
+   내가 로컬에 채워야 할 환경변수 목록을 알려줘.
+
+문서에서 명령을 못 찾으면 추측하지 말고 어디까지 확인됐는지 먼저 보고해줘.</code></pre>
+    </div>
+
+    <p>이 프롬프트의 핵심은 <strong>3가지 제약</strong>이다. 이게 "그럴듯한 추측"을 막는다.</p>
+    <ul>
+      <li><strong>근거 강제</strong> — "기억이 아니라 조회한 문서" 한 줄이 오래된 학습 데이터로 명령을 지어내는 걸 막는다.</li>
+      <li><strong>비밀 분리</strong> — <code>${ENV_VAR}</code> 규칙을 미리 못 박아 토큰이 <code>.mcp.json</code>에 커밋되는 사고를 막는다.</li>
+      <li><strong>실패 보고</strong> — 못 찾으면 추측 대신 멈추게 해, 틀린 설정을 커밋하는 것보다 낫게 만든다.</li>
+    </ul>
+    <div class="note ok">
+      <span class="tag">응용</span>
+      <p>같은 틀로 서버 여러 개를 한 번에 시킬 수 있다. <code>&lt;서버이름&gt;</code> 자리에 "context7, playwright, sequential-thinking"을 넣고 "셋 다 하나의 <code>.mcp.json</code>으로 합쳐줘"라고 덧붙이면 <a href="#minimum">06번</a>의 통합 설정을 문서 근거로 다시 만든다.</p>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section id="check">
+    <h2><span class="kicker">마무리</span>점검 체크리스트 · 트러블슈팅</h2>
+    <ol class="steps">
+      <li><strong>붙인 목적이 분명한가.</strong> "없으면 못 하는 일"이 있는 서버만 남겼는지 다시 본다.</li>
+      <li><strong>스코프가 맞는가.</strong> 나만 쓰면 <code>local</code>, 팀 공유면 <code>project</code>(<code>.mcp.json</code>), 모든 프로젝트면 <code>user</code>.</li>
+      <li><strong>비밀값이 파일에 없는가.</strong> <code>.mcp.json</code>에 토큰·키가 평문으로 박혀 있지 않은지 검사한다. <code>${ENV_VAR}</code>로 뺐는지 확인.</li>
+      <li><strong>연결되는가.</strong> <code>claude mcp list</code> → 상태 확인. 세션에서 <code>/mcp</code> → 도구가 실제로 보이는지 확인.</li>
+    </ol>
+
+    <h3>자주 걸리는 것</h3>
+    <div class="tblwrap">
+    <table>
+      <thead><tr><th>증상</th><th>원인·조치</th></tr></thead>
+      <tbody>
+        <tr><td>서버가 안 뜬다</td><td><code>npx</code>/Node 설치 여부, 패키지명 오타. <code>claude mcp list</code> 상태부터 본다</td></tr>
+        <tr><td>http 서버 401/403</td><td>토큰 환경변수 누락. <code>${API_TOKEN}</code>이 실제로 셸에 export 됐는지 확인</td></tr>
+        <tr><td>도구가 너무 많아 느리다</td><td>안 쓰는 서버를 뺀다. 최소 구성(<a href="#minimum">06번</a>)으로 좁힌다</td></tr>
+        <tr><td><code>.mcp.json</code>이 안 읽힌다</td><td>프로젝트 <strong>루트</strong>에 있는지, JSON 문법(쉼표·따옴표)이 맞는지 확인</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <footer>
+      <p>문법·명령은 공식 문서 <a href="https://github.com/anthropics/claude-code">anthropics/claude-code</a> 기준으로 확인해 작성했다. 패키지명·전송 방식은 각 서버 README에서 최신본을 확인할 것.</p>
+      <div class="next">
+        <span></span>
+        <a href="02-commands-guide.html">다음 · 커맨드 가이드 &rarr;</a>
+      </div>
+    </footer>
+  </section>
+</main>
+</div>
+
+<script>
+  // 코드 블록 복사 — 기능적 상호작용만. 장식 모션 없음.
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.code').querySelector('pre code');
+      var text = code.innerText;
+      navigator.clipboard.writeText(text).then(function(){
+        var old = btn.textContent;
+        btn.textContent = '복사됨';
+        btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove('done'); }, 1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>

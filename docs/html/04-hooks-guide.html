@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>훅(Hooks) 가이드 — 강의 4편</title>
+<!-- 폰트 선택 이유: 본문 IBM Plex Sans KR(한/영/숫자 균형·UI 가독성), 코드 JetBrains Mono(0/O·1/l 구분). 로딩 실패 시 system 폴백. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* guide.css — Claude 하네스 강의 공통 스타일
+   anti-ai-slop 규칙 준수: 그라데이션·컬러글로우·장식모션·이모지불릿 없음.
+   무채색 베이스 + 액센트 1색(파랑, 링크/액티브 전용). 위계는 크기·굵기·여백으로.
+   폰트: 본문 IBM Plex Sans KR(한/영/숫자 균형·UI 가독성), 코드 JetBrains Mono(0/O·1/l 구분).
+*/
+:root{
+  --ink-900:#111827; --ink-700:#374151; --ink-600:#4b5563;
+  --ink-500:#6b7280; --ink-400:#9ca3af;
+  --line:#e5e7eb; --line-strong:#d1d5db;
+  --bg:#ffffff; --bg-soft:#f9fafb; --code-bg:#f6f7f9;
+  --accent:#2563eb; --accent-strong:#1d4ed8;
+  --ok:#15803d; --warn:#b45309; --danger:#b91c1c;
+  --sans:"IBM Plex Sans KR", ui-sans-serif, system-ui, "Segoe UI", "Malgun Gothic", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--ink-700);
+  font-family:var(--sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px; display:grid;
+  grid-template-columns:232px minmax(0,1fr); gap:48px;}
+@media(max-width:860px){.wrap{grid-template-columns:1fr; gap:0}}
+
+/* ── 사이드 목차 ── */
+aside{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto;
+  padding:40px 0 40px; border-right:1px solid var(--line);}
+@media(max-width:860px){aside{position:static; height:auto; border-right:0;
+  border-bottom:1px solid var(--line); padding:24px 0}}
+.series{font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--ink-400); font-weight:600; margin:0 0 4px}
+aside h1{font-size:18px; line-height:1.3; color:var(--ink-900);
+  margin:0 0 24px; font-weight:700;}
+nav a{display:block; padding:6px 12px 6px 0; color:var(--ink-500);
+  text-decoration:none; font-size:14px; border-left:2px solid transparent;
+  padding-left:12px; transition:color .12s, border-color .12s;}
+nav a:hover{color:var(--ink-900)}
+nav a .n{color:var(--ink-400); font-variant-numeric:tabular-nums; margin-right:8px}
+
+/* ── 본문 ── */
+main{padding:56px 0 120px; max-width:none;}
+main > *{max-width:68ch}
+.lede{font-size:20px; line-height:1.55; color:var(--ink-600); margin:0 0 8px}
+header.doc h1{font-size:39px; line-height:1.12; letter-spacing:-0.02em;
+  color:var(--ink-900); font-weight:700; margin:8px 0 20px;}
+header.doc .meta{font-size:13px; color:var(--ink-400); margin:0 0 40px;
+  padding-bottom:32px; border-bottom:1px solid var(--line);}
+header.doc .meta b{color:var(--ink-600); font-weight:600}
+
+section{padding:48px 0 8px; border-top:1px solid var(--line); margin-top:8px}
+section:first-of-type{border-top:0}
+h2{font-size:28px; line-height:1.2; letter-spacing:-0.01em; color:var(--ink-900);
+  font-weight:700; margin:0 0 6px; scroll-margin-top:24px}
+h2 .kicker{display:block; font-size:13px; font-weight:600; letter-spacing:.03em;
+  color:var(--accent); text-transform:uppercase; margin-bottom:8px}
+h3{font-size:20px; color:var(--ink-900); font-weight:600; margin:36px 0 8px}
+h4{font-size:15px; color:var(--ink-900); font-weight:600; margin:24px 0 4px}
+p{margin:0 0 16px}
+strong{color:var(--ink-900); font-weight:600}
+a{color:var(--accent); text-decoration:none}
+a:hover{color:var(--accent-strong); text-decoration:underline}
+code{font-family:var(--mono); font-size:.88em; background:var(--code-bg);
+  border:1px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink-900)}
+
+ul,ol{margin:0 0 16px; padding-left:22px}
+li{margin:6px 0}
+li::marker{color:var(--ink-400)}
+ul.tight li{margin:3px 0}
+
+/* ── 코드 블록 ── */
+.code{position:relative; margin:16px 0 24px; max-width:68ch}
+.code pre{margin:0; background:var(--code-bg); border:1px solid var(--line);
+  border-radius:8px; padding:16px 18px; overflow-x:auto;}
+.code pre code{background:none; border:0; padding:0; font-size:13.5px;
+  line-height:1.65; color:var(--ink-900)}
+.code .lbl{display:flex; justify-content:space-between; align-items:center;
+  font-size:12px; color:var(--ink-500); margin-bottom:6px}
+.code .lbl .path{font-family:var(--mono); color:var(--ink-600)}
+.copy{font-family:var(--sans); font-size:12px; color:var(--ink-500);
+  background:none; border:1px solid var(--line); border-radius:5px;
+  padding:2px 9px; cursor:pointer; transition:color .12s, border-color .12s, background .12s}
+.copy:hover{color:var(--ink-900); border-color:var(--line-strong)}
+.copy.done{color:var(--ok); border-color:var(--ok)}
+.tok-c{color:var(--ink-400)} /* 주석 */
+.tok-k{color:var(--accent-strong); font-weight:500} /* 키/명령 */
+.tok-s{color:var(--ok)} /* 문자열 */
+
+/* ── 표 ── */
+.tblwrap{overflow-x:auto; margin:16px 0 24px; max-width:68ch}
+table{border-collapse:collapse; width:100%; font-size:14px}
+th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--line);
+  vertical-align:top}
+th{color:var(--ink-500); font-weight:600; font-size:12.5px; letter-spacing:.02em;
+  text-transform:uppercase; border-bottom:1px solid var(--line-strong)}
+td code{font-size:12.5px}
+tr td:first-child{white-space:nowrap; color:var(--ink-900); font-weight:500}
+
+/* ── 콜아웃 ── */
+.note{margin:20px 0 24px; padding:14px 18px; border:1px solid var(--line);
+  border-left:3px solid var(--ink-400); border-radius:0 6px 6px 0;
+  background:var(--bg-soft); font-size:14.5px; max-width:68ch}
+.note.warn{border-left-color:var(--warn)}
+.note.ok{border-left-color:var(--ok)}
+.note p:last-child{margin-bottom:0}
+.note .tag{display:block; font-size:12px; font-weight:600; letter-spacing:.03em;
+  text-transform:uppercase; margin-bottom:4px; color:var(--ink-500)}
+.note.warn .tag{color:var(--warn)}
+.note.ok .tag{color:var(--ok)}
+
+.steps{counter-reset:s; list-style:none; padding-left:0; margin:16px 0 24px}
+.steps>li{counter-increment:s; position:relative; padding-left:38px; margin:14px 0}
+.steps>li::before{content:counter(s); position:absolute; left:0; top:-1px;
+  width:26px; height:26px; border:1px solid var(--line-strong); border-radius:50%;
+  text-align:center; line-height:24px; font-size:13px; font-weight:600;
+  color:var(--ink-600); font-family:var(--mono)}
+
+footer{margin-top:64px; padding-top:28px; border-top:1px solid var(--line);
+  font-size:13px; color:var(--ink-400); max-width:68ch}
+footer a{color:var(--ink-500)}
+.next{display:flex; justify-content:space-between; gap:16px; margin-top:8px;
+  font-size:14px}
+kbd{font-family:var(--mono); font-size:12px; background:#fff; border:1px solid var(--line-strong);
+  border-bottom-width:2px; border-radius:4px; padding:1px 6px; color:var(--ink-700)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside>
+  <p class="series">Claude 하네스 강의 · 04</p>
+  <h1>훅(Hooks) 가이드</h1>
+  <nav>
+    <a href="#what"><span class="n">01</span>훅이란 · 이벤트</a>
+    <a href="#create"><span class="n">02</span>만드는 법 · 프롬프트</a>
+    <a href="#guard"><span class="n">03</span>편집 가드 훅</a>
+    <a href="#stop"><span class="n">04</span>응답 종료 훅</a>
+    <a href="#push"><span class="n">05</span>push/PR 가드</a>
+    <a href="#handoff"><span class="n">06</span>세션 인계 훅</a>
+    <a href="#notify"><span class="n">07</span>알림 훅</a>
+    <a href="#wire"><span class="n">08</span>settings.json 배선</a>
+    <a href="#test"><span class="n">09</span>발동·호출 테스트</a>
+  </nav>
+</aside>
+<main>
+  <header class="doc">
+    <p class="lede">훅은 모델의 선의에 기대지 않는다. 이벤트가 발생하면 하네스가 직접 스크립트를 실행해 규칙을 강제한다.</p>
+    <h1>훅(Hooks) 가이드</h1>
+    <p class="meta">강의 4편 · 대상 <b>Claude Code 사용자</b> · <b>.claude/hooks/</b> · <b>.claude/settings.json</b> 실제 코드 기준</p>
+  </header>
+
+  <section id="what">
+    <h2><span class="kicker">개념</span>훅이란 · 이벤트와 exit code</h2>
+    <p><strong>훅(hook)</strong>은 정해진 <strong>이벤트</strong>가 발생할 때 Claude Code(하네스)가 자동 실행하는 외부 명령이다. 모델이 "그렇게 하기로 마음먹는" 게 아니라, 하네스가 코드를 실행하므로 <strong>규칙이 강제</strong>된다. 포매팅·보호 경로 차단·타입체크·알림처럼 매번 확실히 돌아야 하는 것을 여기 건다.</p>
+    <p>훅은 <strong>stdin으로 JSON payload</strong>를 받는다(어떤 도구를 어떤 인자로 부르려는지 등). 그리고 <strong>exit code와 stdout</strong>으로 하네스에 결과를 돌려준다.</p>
+
+    <h3>이벤트 종류</h3>
+    <div class="tblwrap">
+    <table>
+      <thead><tr><th>이벤트</th><th>시점</th><th>차단·주입</th></tr></thead>
+      <tbody>
+        <tr><td><code>PreToolUse</code></td><td>도구 실행 <strong>직전</strong></td><td>exit 2로 도구 실행을 막을 수 있다</td></tr>
+        <tr><td><code>PostToolUse</code></td><td>도구 실행 <strong>직후</strong></td><td>exit 2로 결과를 Claude에 피드백</td></tr>
+        <tr><td><code>PreCompact</code></td><td>컨텍스트 압축 직전</td><td>파일로만 남긴다(컨텍스트 주입 불가)</td></tr>
+        <tr><td><code>SessionStart</code></td><td>세션 시작·재개 시</td><td>stdout JSON으로 컨텍스트 주입 가능</td></tr>
+        <tr><td><code>Stop</code></td><td>응답 종료 시</td><td>exit 2로 종료를 막고 계속 작업시킴</td></tr>
+        <tr><td><code>Notification</code></td><td>입력·선택 대기 시</td><td>주로 알림용(비차단)</td></tr>
+        <tr><td><code>SubagentStop</code></td><td>서브에이전트 완료 시</td><td>주로 알림용(비차단)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p><code>matcher</code>로 대상을 좁힌다. 도구 이벤트는 도구명(<code>Edit|Write</code>, <code>Bash</code>), <code>PreCompact</code>는 트리거(<code>manual</code>=수동 <code>/compact</code>, <code>*</code>=전부), <code>SessionStart</code>는 <code>resume</code> 등.</p>
+
+    <h3>exit code — 훅의 언어</h3>
+    <div class="tblwrap">
+    <table>
+      <thead><tr><th>반환</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td><code>exit 0</code></td><td>통과. 아무 일 없음(또는 stdout JSON으로 컨텍스트 주입)</td></tr>
+        <tr><td><code>exit 2</code></td><td>차단/피드백. <code>PreToolUse</code>는 도구를 막고, <code>PostToolUse</code>·<code>Stop</code>은 <strong>stderr 내용을 Claude에 전달</strong>해 고치거나 계속하게 함</td></tr>
+        <tr><td>stdout JSON</td><td><code>{"hookSpecificOutput":{"additionalContext":"..."}}</code> 형태로 <strong>모델에 컨텍스트를 주입</strong>(<code>PreToolUse</code>·<code>SessionStart</code>)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note">
+      <span class="tag">설계 원칙</span>
+      <p>드롭인 훅은 <strong>도구·설정이 없으면 조용히 통과(exit 0)</strong>해야 한다. eslint 없는 프로젝트에서 lint 훅이 매 편집을 막으면 안 된다. 아래 훅들이 <code>command -v</code>·버전 체크로 오탐을 막는 이유다.</p>
+    </div>
+  </section>
+
+  <section id="create">
+    <h2><span class="kicker">만들기</span>기능 지정 + 생성 프롬프트</h2>
+    <p>훅을 새로 만들 때 먼저 <strong>네 가지</strong>를 정한다. 이게 정해지면 코드는 짧다.</p>
+    <ul>
+      <li><strong>어느 이벤트 · matcher</strong> — 언제, 무엇에 반응하나.</li>
+      <li><strong>동작 방식</strong> — 막을 것인가(exit 2), 조용히 정리할 것인가(exit 0), 컨텍스트를 주입할 것인가(stdout JSON). 이게 곧 exit code 전략이다.</li>
+      <li><strong>안전장치</strong> — 도구·설정이 없을 때 통과. 드롭인 훅의 필수 조건.</li>
+      <li><strong>payload에서 뽑을 필드</strong> — <code>tool_input.file_path</code>, <code>tool_input.command</code>, <code>stop_hook_active</code> 등.</li>
+    </ul>
+    <p>정한 내용을 그대로 넣어 Claude에게 생성시키는 프롬프트:</p>
+    <div class="code">
+  <div class="lbl"><span class="path">Claude Code에 붙여넣기</span><button class="copy">복사</button></div>
+<pre><code>&lt;이벤트&gt;에 걸리는 훅을 만들어줘.
+
+- 이벤트/대상: &lt;PreToolUse|PostToolUse|Stop|...&gt; , matcher &lt;Edit|Write|Bash|...&gt;
+- 하는 일: ...
+- 동작 방식: [차단]이면 exit 2, [알림/정리]면 비차단 exit 0,
+  [컨텍스트 주입]이면 stdout에 hookSpecificOutput.additionalContext JSON.
+- 안전장치: 필요한 도구(jq/eslint/tsc 등)가 없으면 조용히 exit 0으로 통과.
+  민감정보를 stdout에 찍지 말 것.
+- payload는 stdin JSON에서 jq로 필요한 필드만 뽑아줘(tool_input.file_path 등).
+
+그리고 .claude/settings.json의 hooks.&lt;이벤트&gt;에 matcher와 command로 배선해줘.</code></pre>
+</div>
+    <div class="note warn">
+      <span class="tag">주의</span>
+      <p>훅은 하네스가 <strong>당신 권한으로</strong> 실행한다. 신뢰할 수 없는 명령을 넣지 말고, stdout에 비밀값을 출력하지 마라. 무한 루프도 조심 — <code>Stop</code> 훅이 exit 2로 계속 작업시키면 <code>stop_hook_active</code> 플래그로 재진입을 끊어야 한다(아래 typecheck 훅 참고).</p>
+    </div>
+  </section>
+
+  <section id="guard">
+    <h2><span class="kicker">코드 · 편집 가드</span>파일 편집에 걸리는 훅 3종</h2>
+    <p>파일을 편집(<code>Edit</code>/<code>Write</code>)할 때 앞뒤로 도는 세 훅이다. <strong>차단 → 정리 → 검증</strong> 순서로 역할이 갈린다.</p>
+
+    <h3>protect-paths.sh — 민감 파일 편집 차단 (PreToolUse)</h3>
+    <p>편집하려는 경로가 <code>.env</code>·<code>credentials</code>·<code>.git/config</code>·ssh 키·<code>*.pem</code>에 걸리면 <strong><code>exit 2</code>로 편집을 막고</strong> 사유를 Claude에 전달한다. 그 외 경로는 <code>exit 0</code> 통과. payload의 <code>tool_input.file_path</code>를 <code>jq</code>로 뽑아 <code>case</code> 패턴으로 매칭한다.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/protect-paths.sh</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env bash
+# 보호 경로 수정 차단 (PreToolUse, matcher: "Edit|Write").
+# 민감 파일(.env, credentials, .git/config 등) 편집을 시도하면 exit 2 로 차단하고
+# Claude 에게 사유를 전달한다. 그 외에는 통과.
+set -euo pipefail
+
+payload=$(cat)
+file=$(printf '%s' "$payload" | jq -r '.tool_input.file_path // ""')
+
+# 빈 경로는 통과
+[ -z "$file" ] &amp;&amp; exit 0
+
+# 보호 경로 매칭
+case "$file" in
+  */.env|*/.env.*|*/credentials*|*/.git/config|*/id_rsa|*/id_ed25519|*/*.pem)
+    echo "BLOCKED: '$file' 는 수정 금지 경로입니다. 민감 정보 파일이라 훅이 편집을 차단했습니다." &gt;&amp;2
+    exit 2   # 차단 + Claude 에게 사유 전달
+    ;;
+esac
+
+exit 0   # 명시적 통과</code></pre>
+</div>
+
+    <h3>format-on-edit.sh — 자동 포매팅 (PostToolUse, 비차단)</h3>
+    <p>편집된 JS/TS 파일을 <code>eslint --fix</code> + <code>prettier --write</code>로 정리한다. <strong>차단하지 않는다</strong> — 도구가 없거나 실패해도 <code>|| true</code>로 삼키고 <code>exit 0</code>. 확장자가 대상이 아니거나 실제 파일이 아니면 그냥 통과.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/format-on-edit.sh</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env bash
+# format-on-edit.sh — PostToolUse (matcher: "Edit|Write"). 차단 없이 정리만.
+# 편집된 JS/TS 파일을 eslint --fix + prettier 로 자동 포매팅한다. 실패해도 통과.
+set -euo pipefail
+
+payload=$(cat)
+file=$(printf '%s' "$payload" | jq -r '.tool_input.file_path // ""')
+
+# 경로 없거나 실제 파일이 아니면 통과
+[ -z "$file" ] &amp;&amp; exit 0
+[ -f "$file" ] || exit 0
+
+case "$file" in
+  *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs)
+    pnpm exec eslint "$file" --fix &gt;/dev/null 2&gt;&amp;1 || true
+    pnpm exec prettier --write "$file" &gt;/dev/null 2&gt;&amp;1 || true
+    ;;
+esac
+
+exit 0</code></pre>
+</div>
+
+    <h3>lint-verify.sh — 남은 위반 피드백 (PostToolUse, exit 2)</h3>
+    <p><code>format-on-edit</code>의 자동 <code>--fix</code> <strong>다음에</strong> 돌아, <code>--fix</code>로 안 잡히는 ESLint 위반이 남았으면 <code>exit 2</code>로 stderr 내용을 Claude에 피드백해 고치게 한다. 핵심 방어: <strong>eslint가 없는 프로젝트에선</strong> "not found"의 nonzero를 위반으로 오인해 매 편집을 막으므로, <code>eslint --version</code>이 성공할 때만 검증한다.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/lint-verify.sh</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env bash
+# lint-verify.sh — PostToolUse (matcher: "Edit|Write").
+# 편집된 TS 파일에 ESLint 위반이 남아 있으면 exit 2 로 Claude 에게 피드백해 고치게 한다.
+# format-on-edit.sh(자동 --fix) 다음에 돌아, 자동 수정으로 안 잡히는 위반만 보고한다.
+# set -e 는 쓰지 않는다(eslint 실패 시 우리가 직접 exit 2 를 던져야 하므로).
+set -uo pipefail
+
+payload=$(cat)
+file=$(printf '%s' "$payload" | jq -r '.tool_input.file_path // ""')
+
+[ -z "$file" ] &amp;&amp; exit 0   # 빈 경로 통과
+
+case "$file" in
+  *.ts|*.tsx)
+    # eslint 이 없는 프로젝트에선 "not found" nonzero 를 위반으로 오인해 매 편집을 막는다 → 있을 때만 검증.
+    pnpm exec eslint --version &gt;/dev/null 2&gt;&amp;1 || exit 0
+    lint_out=$(pnpm exec eslint "$file" --max-warnings 0 2&gt;&amp;1)
+    if [ $? -ne 0 ]; then
+      {
+        echo "ESLint 위반 in $file:"
+        echo "$lint_out"
+        echo "위 위반 사항을 수정해주세요."
+      } &gt;&amp;2
+      exit 2
+    fi
+    ;;
+esac
+
+exit 0</code></pre>
+</div>
+  </section>
+
+  <section id="stop">
+    <h2><span class="kicker">코드 · 응답 종료</span>Stop 훅 — 끝내기 전 타입체크</h2>
+    <h3>typecheck-on-stop.sh</h3>
+    <p>응답을 끝내려는 순간 <code>tsc --noEmit</code>로 <strong>전체</strong> 타입체크를 한 번 돌린다(<code>Stop</code>은 개별 <code>file_path</code>를 안 주므로 전체가 맞다). 에러가 있으면 <code>exit 2</code>로 종료를 막고 Claude를 계속 작업시켜 고치게 한다.</p>
+    <p>두 가지 안전장치가 핵심이다. <strong>무한 루프 방지</strong>: 이미 이 훅 때문에 계속 작업 중이면(<code>stop_hook_active == true</code>) 재검사 없이 통과. <strong>드롭인 통과</strong>: <code>tsconfig.json</code>이 없거나 <code>tsc</code>가 없으면 오탐 방지로 통과.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/typecheck-on-stop.sh</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env bash
+# typecheck-on-stop.sh — Stop 훅. 응답 종료 시 1회 전체 타입체크(tsc --noEmit).
+# 에러가 있으면 exit 2 로 Claude 를 계속 작업시켜 고치게 한다.
+# Stop 은 file_path 를 받지 않으므로 전체 검사가 맞다.
+# set -e 는 쓰지 않는다(tsc 실패 시 우리가 직접 exit 2 를 던져야 하므로).
+set -uo pipefail
+
+payload=$(cat)
+
+# 무한 루프 방지: 이미 이 Stop 훅 때문에 계속 작업 중이면 재검사하지 않고 통과.
+if [ "$(printf '%s' "$payload" | jq -r '.stop_hook_active // false')" = "true" ]; then
+  exit 0
+fi
+
+# TS 프로젝트가 아니거나 tsc 가 없으면(드롭인) 오탐 방지로 통과.
+[ -f tsconfig.json ] || exit 0
+pnpm exec tsc --version &gt;/dev/null 2&gt;&amp;1 || exit 0
+
+tsc_out=$(pnpm exec tsc --noEmit 2&gt;&amp;1)
+if [ $? -ne 0 ]; then
+  {
+    echo "TypeScript 컴파일 에러 발견:"
+    echo "$tsc_out"
+    echo "위 타입 에러를 수정해주세요."
+  } &gt;&amp;2
+  exit 2   # Stop 의 exit 2 = "종료 막고 계속 작업"
+fi
+
+exit 0</code></pre>
+</div>
+  </section>
+
+  <section id="push">
+    <h2><span class="kicker">코드 · push 가드</span>changelog 리마인더 (PreToolUse / Bash)</h2>
+    <h3>changelog-reminder.py</h3>
+    <p><code>git push</code> / <code>gh pr create</code> 직전, 이번에 나갈 커밋에 <strong>의존성·빌드 매니페스트</strong>(<code>package.json</code>·<code>go.mod</code>·<code>Cargo.toml</code>·<code>pom.xml</code> 등) 변경이 있는데 <code>changelog/changelog.md</code> 갱신이 없으면, 모델에 <code>additionalContext</code>로 "changelog 스킬로 기록할지 검토하라"고 <strong>주입</strong>한다. push는 <strong>절대 막지 않는다</strong>(항상 <code>exit 0</code>, defer).</p>
+    <p>매니페스트 변경을 "되돌리기 어려운 결정"의 <strong>고신호 근사</strong>로 쓴다. 나갈 파일 목록은 upstream이 있으면 그 <code>merge-base</code> 기준, 없으면 base 브랜치(<code>origin/main</code>·<code>develop</code>…) 기준으로 <code>git diff --name-only</code>로 뽑는다. <code>--selftest</code>로 로직을 검증할 수 있다.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/changelog-reminder.py</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env python3
+"""PreToolUse 훅 — push/PR 직전 changelog 누락을 비차단으로 리마인드한다.
+
+git push / gh pr create 로 나갈 커밋에 의존성·빌드 매니페스트 변경이 있는데
+changelog/changelog.md 갱신이 없으면, 모델에 additionalContext 로 "changelog
+스킬로 기록할지 검토하라"고 알린다. push 는 절대 막지 않는다(exit 0, defer).
+
+ponytail: 매니페스트 변경 = "되돌리기 어려운 결정"의 휴리스틱 프록시. 완벽 탐지가
+아니라 고신호 근사다. 아키텍처/API 결정 중 매니페스트를 안 건드리는 건 놓친다.
+
+ponytail: matcher "Bash" 라 모든 Bash 호출에 이 스크립트가 뜬다(파이썬 콜드스타트
+~30ms). 오버헤드가 거슬리면 settings.json 에서 `if: "Bash(git push*)"` /
+`"Bash(gh pr create*)"` 로 게이트해 push/PR 에서만 뜨게 바꿔라.
+
+self-test: python3 changelog-reminder.py --selftest
+"""
+import sys, os, json, subprocess
+
+# basename 기준. 생태계별 의존성·빌드 매니페스트.
+MANIFESTS = {
+    "package.json", "package-lock.json", "pnpm-lock.yaml", "yarn.lock",
+    "go.mod", "go.sum",
+    "Cargo.toml", "Cargo.lock",
+    "pom.xml", "build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts",
+    "requirements.txt", "pyproject.toml", "poetry.lock", "Pipfile", "Pipfile.lock",
+    "Gemfile", "Gemfile.lock", "composer.json", "composer.lock",
+}
+CHANGELOG = "changelog/changelog.md"
+
+
+def is_push_or_pr(cmd):
+    c = " ".join(cmd.split())
+    return "git push" in c or "gh pr create" in c
+
+
+def evaluate(files):
+    """변경 파일 목록 → (건드린 매니페스트, changelog 갱신 여부)."""
+    manifests = sorted({f for f in files if os.path.basename(f) in MANIFESTS})
+    changelog_updated = any(f.replace("\\", "/").endswith(CHANGELOG) for f in files)
+    return manifests, changelog_updated
+
+
+def git(cwd, *args):
+    try:
+        out = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=5)
+        return out.stdout.strip() if out.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
+def changed_files(cwd):
+    """나갈 커밋의 변경 파일: upstream 이 있으면 그 기준, 없으면 base 브랜치 기준."""
+    base = git(cwd, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+    if not base:
+        for b in ("origin/main", "origin/develop", "main", "develop"):
+            if git(cwd, "rev-parse", "--verify", "--quiet", b):
+                base = b
+                break
+    if base:
+        mb = git(cwd, "merge-base", base, "HEAD") or base
+        files = git(cwd, "diff", "--name-only", mb, "HEAD")
+    else:
+        files = git(cwd, "diff", "--name-only", "HEAD~1", "HEAD")
+    return [f for f in files.splitlines() if f]
+
+
+def main():
+    raw = sys.stdin.read()
+    try:
+        data = json.loads(raw) if raw.strip() else {}
+    except Exception:
+        data = {}
+    cmd = (data.get("tool_input") or {}).get("command", "")
+    if not is_push_or_pr(cmd):
+        sys.exit(0)  # push/PR 이 아니면 조용히 통과
+
+    cwd = data.get("cwd") or os.getcwd()
+    manifests, changelog_updated = evaluate(changed_files(cwd))
+    if manifests and not changelog_updated:
+        msg = (
+            "이 push/PR 에 의존성·빌드 매니페스트 변경이 있다: "
+            + ", ".join(manifests)
+            + f". 하지만 {CHANGELOG} 갱신이 없다. 되돌리기 어려운 결정"
+            "(의존성 추가/교체/메이저 버전업, 빌드 변경)이라면 changelog 스킬로 "
+            "기록할지 사용자에게 물어라. 사소한 변경이면 무시하고 그대로 진행."
+        )
+        print(json.dumps({"hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "additionalContext": msg,
+        }}))
+    sys.exit(0)  # 항상 비차단
+
+
+def selftest():
+    # 매니페스트 변경 + changelog 없음 → 리마인드
+    m, cu = evaluate(["src/a.ts", "package.json"])
+    assert m == ["package.json"] and cu is False, (m, cu)
+    # 매니페스트 + changelog 갱신됨 → 조용
+    m, cu = evaluate(["go.mod", "changelog/changelog.md"])
+    assert m == ["go.mod"] and cu is True, (m, cu)
+    # 매니페스트 없음 → 조용
+    m, cu = evaluate(["src/a.ts", "README.md"])
+    assert m == [] and cu is False, (m, cu)
+    # 명령 감지
+    assert is_push_or_pr("git push -u origin HEAD")
+    assert is_push_or_pr("git commit -m x &amp;&amp; gh pr create --base develop --fill")
+    assert not is_push_or_pr("git status")
+    print("selftest OK")
+
+
+if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        selftest()
+    else:
+        main()</code></pre>
+</div>
+  </section>
+
+  <section id="handoff">
+    <h2><span class="kicker">코드 · 세션 인계</span>압축·재개를 잇는 훅 3종</h2>
+    <p>세션이 압축되거나 끝나도 맥락을 잃지 않게, <code>.handoff.md</code>(레포 루트, <code>.gitignore</code> 처리)를 매개로 세 훅이 협력한다. <code>PreCompact</code>는 모델을 못 부르므로 파일로만 남기고, <code>SessionStart</code>가 그 파일을 다시 주입한다.</p>
+
+    <h3>precompact-handoff.py — 압축 직전 기계 스냅샷 (PreCompact / *)</h3>
+    <p>모든 압축 직전(자동·수동 모두) 브랜치·변경파일·최근 사용자 메시지를 <code>.handoff.md</code>에 덧붙인다. <code>PreCompact</code>는 컨텍스트 주입이 안 되므로 여기선 <strong>스냅샷만</strong> 남기고, 사람이 읽을 인계문 정리는 <code>handoff</code> 스킬(모델)이 한다. 어떤 경우에도 압축을 막지 않는다.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/precompact-handoff.py</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env python3
+"""PreCompact 훅 — 압축 직전 기계적 스냅샷을 .handoff.md 에 덧붙인다.
+
+PreCompact 훅은 모델을 호출할 수 없다(additionalContext 미지원). 그래서 여기서
+할 수 있는 건 "지금 상태"를 파일로 영속화하는 것뿐이다: 브랜치·변경파일·최근
+사용자 메시지. 지능형 인계문 정리는 handoff 스킬(모델)이 나중에 한다.
+
+stdin 으로 PreCompact JSON(session_id, transcript_path, cwd, trigger)을 받는다.
+어떤 경우에도 compaction 을 막지 않는다(항상 exit 0).
+
+self-test: python3 precompact-handoff.py --selftest
+"""
+import sys, os, json, subprocess, datetime
+
+
+def last_user_messages(transcript_path, n=5, maxlen=200):
+    """transcript jsonl 에서 마지막 사용자 텍스트 메시지 n개를 뽑는다."""
+    msgs = []
+    try:
+        with open(transcript_path) as f:
+            for line in f:
+                try:
+                    o = json.loads(line)
+                except Exception:
+                    continue
+                if o.get("type") != "user":
+                    continue
+                m = o.get("message") or {}
+                if m.get("role") != "user":
+                    continue
+                c = m.get("content")
+                if isinstance(c, str):
+                    text = c
+                elif isinstance(c, list):
+                    # tool_result 만 있는 user 턴은 건너뛴다(사람이 친 게 아님)
+                    parts = [p.get("text", "") for p in c if isinstance(p, dict) and p.get("type") == "text"]
+                    text = " ".join(t for t in parts if t)
+                else:
+                    text = ""
+                text = " ".join(text.split())  # 공백 정규화
+                if text and not text.startswith("&lt;"):  # 시스템/훅 주입 노이즈 제외
+                    msgs.append(text[:maxlen])
+    except FileNotFoundError:
+        return []
+    return msgs[-n:]
+
+
+def git(cwd, *args):
+    try:
+        out = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, timeout=5)
+        return out.stdout.strip()
+    except Exception:
+        return ""
+
+
+def build_snapshot(cwd, trigger, transcript_path, now):
+    branch = git(cwd, "rev-parse", "--abbrev-ref", "HEAD") or "?"
+    status = git(cwd, "status", "--short")
+    msgs = last_user_messages(transcript_path)
+
+    lines = [
+        "",
+        f"## ⏸ pre-compact snapshot — {now} (trigger: {trigger})",
+        f"- branch: `{branch}`",
+    ]
+    if status:
+        lines += ["- 변경:", "  ```", *[f"  {l}" for l in status.splitlines()], "  ```"]
+    else:
+        lines.append("- 변경: (없음)")
+    if msgs:
+        lines.append("- 최근 사용자 메시지:")
+        lines += [f'  - "{m}"' for m in msgs]
+    lines.append("")
+    lines.append("&gt; 자동 생성(precompact 훅). handoff 스킬로 정리하면 이 섹션은 지워도 됨.")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def main():
+    raw = sys.stdin.read()
+    try:
+        data = json.loads(raw) if raw.strip() else {}
+    except Exception:
+        data = {}
+    cwd = data.get("cwd") or os.getcwd()
+    trigger = data.get("trigger", "?")
+    transcript_path = data.get("transcript_path", "")
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    snapshot = build_snapshot(cwd, trigger, transcript_path, now)
+    target = os.path.join(cwd, ".handoff.md")
+    try:
+        with open(target, "a") as f:
+            f.write(snapshot)
+        print(f"[handoff] pre-compact 스냅샷을 {target} 에 저장했다.")
+    except Exception as e:
+        print(f"[handoff] 스냅샷 저장 실패: {e}", file=sys.stderr)
+    sys.exit(0)  # 절대 compaction 을 막지 않는다
+
+
+def selftest():
+    import tempfile
+    tp = tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False)
+    tp.write(json.dumps({"type": "user", "message": {"role": "user", "content": "첫 요청"}}) + "\n")
+    # tool_result 만 있는 user 턴 → 제외돼야 함
+    tp.write(json.dumps({"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "content": "x"}]}}) + "\n")
+    tp.write(json.dumps({"type": "assistant", "message": {"role": "assistant", "content": "응답"}}) + "\n")
+    tp.write(json.dumps({"type": "user", "message": {"role": "user", "content": [{"type": "text", "text": "두 번째 요청"}]}}) + "\n")
+    tp.close()
+    msgs = last_user_messages(tp.name)
+    assert msgs == ["첫 요청", "두 번째 요청"], msgs
+    snap = build_snapshot(os.getcwd(), "manual", tp.name, "2026-01-01 00:00 UTC")
+    assert "pre-compact snapshot" in snap and "두 번째 요청" in snap
+    os.unlink(tp.name)
+    print("selftest OK")
+
+
+if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        selftest()
+    else:
+        main()</code></pre>
+</div>
+
+    <h3>dump-handoff.sh — 수동 /compact 스냅샷 (PreCompact / manual)</h3>
+    <p>수동 <code>/compact</code> 시점에 현재 브랜치·변경을 <code>.handoff.md</code>에 append한다. 결정·미해결을 여기에 정리해두면 다음 세션에 주입된다.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/dump-handoff.sh</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env bash
+# .claude/hooks/dump-handoff.sh — PreCompact(manual) 훅
+# /compact 수동 호출 직전, 현재 결정·미해결 스냅샷을 .handoff.md 에 덧붙인다.
+# SessionStart(resume)의 inject-handoff.sh 가 새 세션에서 이걸 다시 주입한다.
+# compaction 을 막지 않는다(항상 exit 0).
+
+payload=$(cat)
+
+cwd=$(printf '%s' "$payload" | jq -r '.cwd // empty')
+[ -z "$cwd" ] &amp;&amp; cwd="$PWD"
+trigger=$(printf '%s' "$payload" | jq -r '.trigger // "manual"')
+now=$(date -u '+%Y-%m-%d %H:%M UTC')
+
+branch=$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2&gt;/dev/null || echo '?')
+status=$(git -C "$cwd" status --short 2&gt;/dev/null)
+
+target="$cwd/.handoff.md"
+{
+  echo ""
+  echo "## ⏸ handoff dump — $now (trigger: $trigger)"
+  echo "- branch: \`$branch\`"
+  if [ -n "$status" ]; then
+    echo "- 변경:"
+    echo '  ```'
+    printf '%s\n' "$status" | sed 's/^/  /'
+    echo '  ```'
+  else
+    echo "- 변경: (없음)"
+  fi
+  echo ""
+  echo "&gt; dump-handoff 훅 자동 생성. 결정·미해결을 여기에 정리하면 다음 세션에 주입됨."
+  echo ""
+} &gt;&gt; "$target" 2&gt;/dev/null
+
+echo "[handoff] dump 저장: $target"
+exit 0</code></pre>
+</div>
+
+    <h3>inject-handoff.sh — 재개 세션에 재주입 (SessionStart / resume)</h3>
+    <p>세션을 이어받을 때 <code>.handoff.md</code>를 읽어 <code>additionalContext</code>로 주입한다. <code>SessionStart</code>는 <code>PreCompact</code>와 달리 주입이 되므로 이 훅이 실제로 맥락을 되살린다. 파일이 없거나 비면 조용히 통과.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/inject-handoff.sh</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env bash
+# .claude/hooks/inject-handoff.sh — SessionStart(resume) 훅
+# 새(이어받는) 세션 시작 시 .handoff.md 를 읽어 컨텍스트로 주입한다.
+# SessionStart 는 PreCompact 와 달리 additionalContext 주입이 가능하다.
+# 파일 없으면 조용히 통과.
+
+payload=$(cat)
+
+cwd=$(printf '%s' "$payload" | jq -r '.cwd // empty')
+[ -z "$cwd" ] &amp;&amp; cwd="$PWD"
+
+target="$cwd/.handoff.md"
+[ -s "$target" ] || exit 0   # 없거나 빈 파일이면 주입할 것 없음
+
+content=$(cat "$target")
+ctx=$(printf '이전 세션 인계문(.handoff.md):\n\n%s' "$content")
+
+jq -n --arg c "$ctx" '{
+  hookSpecificOutput: {
+    hookEventName: "SessionStart",
+    additionalContext: $c
+  }
+}'
+exit 0</code></pre>
+</div>
+  </section>
+
+  <section id="notify">
+    <h2><span class="kicker">코드 · 알림</span>완료·대기 알림 훅 2종</h2>
+    <p>응답 완료·입력 대기·서브에이전트 완료를 소리와 배너로 알린다. 실패해도 <code>exit 0</code>으로 세션을 막지 않는다. 플랫폼에 맞는 것만 실제로 동작하고 나머지는 조용히 실패한다.</p>
+
+    <h3>notify-win.sh — Windows(WSL2) 토스트 + 벨소리</h3>
+    <p><code>powershell.exe</code>로 Windows 토스트 배너를 띄우고 벨소리를 <strong>동기(<code>PlaySync</code>)</strong> 재생한다(헤드리스 PowerShell에서도 확실히 남). 인자로 <strong>라벨</strong>과 <strong>사운드 파일명</strong>을 받아 이벤트별로 다른 소리를 낸다. 한글·특수문자 깨짐은 <strong>base64</strong>로 넘겨 PowerShell 안에서 복원한다. 볼륨은 <code>CLAUDE_NOTIFY_VOLUME</code>(100=원음, 미만이면 wav 진폭 축소, 초과면 증폭·16bit 클램프), 사운드는 <code>CLAUDE_NOTIFY_SOUND</code>로 교체.</p>
+    <p>토스트가 배너로 뜨려면 등록된 <strong>AppUserModelID</strong>가 필요해, 항상 존재하는 PowerShell의 AUMID를 빌려 쓴다. 임의 문자열은 조용히 버려진다.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/notify-win.sh</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env bash
+# Windows(WSL2) 알림 훅. stdin 으로 들어온 훅 JSON payload 를 읽어
+# Windows 토스트 알림을 띄우고, 볼륨 조절 가능한 벨소리를 재생한다.
+#
+# 사용: notify-win.sh "&lt;라벨&gt;" ["&lt;사운드 파일명&gt;"]
+#   라벨    = payload 에 title/message 없을 때 fallback
+#   사운드  = C:\Windows\Media\ 안의 wav 파일명(예: "chimes.wav"). 이벤트별로 다르게 준다.
+#   - Stop        : 응답 완료      (Windows Notify.wav)
+#   - Notification: 입력/선택 대기 (chimes.wav)
+#   - SubagentStop: 서브에이전트 완료 (Windows Notify.wav)
+#
+# 소리는 SoundPlayer.PlaySync 로 동기 재생한다(헤드리스 PowerShell 에서도 확실히 남).
+# 볼륨: 기본 100(원음 그대로 즉시 재생). 100 미만이면 진폭을 줄이고, 100 초과면 증폭한다
+#       (예: 150 = 1.5배, 클리핑은 16bit 범위로 클램프). 환경변수 CLAUDE_NOTIFY_VOLUME 로 조절.
+# 벨소리 우선순위: 환경변수 CLAUDE_NOTIFY_SOUND(전체 경로) &gt; 2번째 인자(파일명) &gt; 기본값.
+set -euo pipefail
+
+VOLUME="${CLAUDE_NOTIFY_VOLUME:-100}"
+sound_arg="${2:-}"
+if [ -n "${CLAUDE_NOTIFY_SOUND:-}" ]; then SOUND="$CLAUDE_NOTIFY_SOUND"
+elif [ -n "$sound_arg" ]; then SOUND="C:\\Windows\\Media\\$sound_arg"
+else SOUND="C:\\Windows\\Media\\Windows Notify.wav"; fi
+# 토스트는 Windows 에 등록된 AppUserModelID 가 있어야 배너로 뜬다.
+# 임의 문자열('Claude Code')은 조용히 버려지므로, 항상 등록돼 있는 PowerShell 의 AUMID 를 빌려 쓴다.
+AUMID='{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe'
+
+payload=$(cat)
+label="${1:-Claude Code}"
+
+title=$(printf '%s' "$payload" | jq -r '.title // empty')
+msg=$(printf '%s' "$payload" | jq -r '.message // empty')
+[ -z "$title" ] &amp;&amp; title="Claude Code"
+[ -z "$msg" ] &amp;&amp; msg="$label"
+
+# 한글·따옴표·특수문자 깨짐 방지: base64 로 넘겨 PowerShell 안에서 복원.
+b64t=$(printf '%s' "$title" | base64 -w0)
+b64m=$(printf '%s' "$msg" | base64 -w0)
+
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "
+\$ErrorActionPreference='SilentlyContinue'
+# --- 토스트 배너 ---
+\$t=[Security.SecurityElement]::Escape([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('$b64t')))
+\$m=[Security.SecurityElement]::Escape([Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('$b64m')))
+[Windows.UI.Notifications.ToastNotificationManager,Windows.UI.Notifications,ContentType=WindowsRuntime]|Out-Null
+[Windows.Data.Xml.Dom.XmlDocument,Windows.Data.Xml.Dom,ContentType=WindowsRuntime]|Out-Null
+\$doc=New-Object Windows.Data.Xml.Dom.XmlDocument
+\$doc.LoadXml('&lt;toast&gt;&lt;visual&gt;&lt;binding template=\"ToastGeneric\"&gt;&lt;text&gt;'+\$t+'&lt;/text&gt;&lt;text&gt;'+\$m+'&lt;/text&gt;&lt;/binding&gt;&lt;/visual&gt;&lt;audio silent=\"true\"/&gt;&lt;/toast&gt;')
+\$toast=New-Object Windows.UI.Notifications.ToastNotification \$doc
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('$AUMID').Show(\$toast)
+# --- 벨소리 (동기, 볼륨 스케일) ---
+\$path='$SOUND'; \$vol=$VOLUME
+if(\$vol -eq 100){
+  (New-Object Media.SoundPlayer \$path).PlaySync()
+} else {
+  try {
+    \$b=[IO.File]::ReadAllBytes(\$path)
+    \$af=1;\$bits=16;\$ds=-1;\$dl=0;\$i=12
+    while(\$i+8 -le \$b.Length){
+      \$id=[Text.Encoding]::ASCII.GetString(\$b,\$i,4)
+      \$sz=[BitConverter]::ToInt32(\$b,\$i+4)
+      if(\$id -eq 'fmt '){ \$af=[BitConverter]::ToInt16(\$b,\$i+8); \$bits=[BitConverter]::ToInt16(\$b,\$i+22) }
+      elseif(\$id -eq 'data'){ \$ds=\$i+8; \$dl=\$sz }
+      \$i+=8+\$sz+(\$sz%2)
+    }
+    if(\$af -eq 1 -and \$bits -eq 16 -and \$ds -gt 0){
+      \$cnt=[int](\$dl/2); \$s=New-Object 'Int16[]' \$cnt
+      [Buffer]::BlockCopy(\$b,\$ds,\$s,0,\$cnt*2)
+      \$f=[double]\$vol/100.0
+      for(\$k=0;\$k -lt \$cnt;\$k++){ \$v=[int][math]::Round(\$s[\$k]*\$f); if(\$v -gt 32767){\$v=32767}elseif(\$v -lt -32768){\$v=-32768}; \$s[\$k]=[Int16]\$v }
+      [Buffer]::BlockCopy(\$s,0,\$b,\$ds,\$cnt*2)
+      \$tmp=[IO.Path]::GetTempFileName(); [IO.File]::WriteAllBytes(\$tmp,\$b)
+      (New-Object Media.SoundPlayer \$tmp).PlaySync(); Remove-Item \$tmp -EA SilentlyContinue
+    } else { (New-Object Media.SoundPlayer \$path).PlaySync() }
+  } catch { (New-Object Media.SoundPlayer \$path).PlaySync() }
+}
+" &gt;/dev/null 2&gt;&amp;1 || true
+
+exit 0</code></pre>
+</div>
+
+    <h3>notify-mac.sh — macOS 데스크톱 알림</h3>
+    <p><code>osascript</code>의 <code>display notification</code>으로 알림을 띄우고 <code>Glass</code> 사운드를 낸다. payload에 <code>title</code>/<code>message</code>가 있으면 그걸, 없으면 기본값을 쓴다.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/hooks/notify-mac.sh</span><button class="copy">복사</button></div>
+<pre><code>#!/usr/bin/env bash
+# .claude/hooks/notify-mac.sh — macOS 데스크톱 알림
+
+payload=$(cat)
+
+msg=$(echo "$payload" | jq -r '.message // "Claude needs input"')
+title=$(echo "$payload" | jq -r '.title // "Claude Code"')
+
+osascript -e "display notification \"$msg\" with title \"$title\" sound name \"Glass\""
+
+exit 0</code></pre>
+</div>
+  </section>
+
+  <section id="wire">
+    <h2><span class="kicker">배선</span>settings.json — 이벤트에 훅 연결</h2>
+    <p>훅 스크립트는 파일로 있다고 도는 게 아니다. <code>.claude/settings.json</code>의 <code>hooks.&lt;이벤트&gt;</code> 아래에 <code>matcher</code>와 실행 <code>command</code>로 <strong>배선</strong>해야 발동한다. <code>$CLAUDE_PROJECT_DIR</code>는 프로젝트 루트로 치환된다. 한 이벤트에 여러 훅을 배열로 달 수 있고(예: <code>Stop</code>에 알림 + 타입체크), 각 훅에 <code>timeout</code>(초)을 준다.</p>
+    <div class="code">
+  <div class="lbl"><span class="path">.claude/settings.json</span><button class="copy">복사</button></div>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/changelog-reminder.py\"",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-paths.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/format-on-edit.sh\"",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint-verify.sh\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/precompact-handoff.py\"",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/dump-handoff.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/inject-handoff.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-win.sh\" \"응답 완료\" \"Windows Notify.wav\"",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/typecheck-on-stop.sh\"",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-win.sh\" \"입력이 필요합니다\" \"chimes.wav\"",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-mac.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-win.sh\" \"에이전트 완료\" \"Windows Notify.wav\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+</div>
+    <div class="note">
+      <span class="tag">읽는 법</span>
+      <p><code>PreCompact</code>에 <code>*</code>(전체 스냅샷)와 <code>manual</code>(수동 dump)이 둘 다 걸려 있고, <code>Stop</code>·<code>Notification</code>·<code>SubagentStop</code>이 알림 훅을 공유한다. <code>PostToolUse</code>의 <code>Edit|Write</code>는 <strong>format → lint 순서</strong>로 배열돼, 자동 정리 뒤 남은 위반만 피드백한다.</p>
+    </div>
+  </section>
+
+  <section id="test">
+    <h2><span class="kicker">검증</span>발동 · 호출 테스트</h2>
+    <p>훅은 stdin JSON을 받는 평범한 명령이다. 그래서 <strong>손으로 payload를 흘려 넣어</strong> 발동 전에 검증할 수 있다.</p>
+
+    <h4>bash 훅 — exit code 확인</h4>
+    <div class="code">
+  <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code># PreToolUse 훅에 stdin JSON을 흘려 exit code 확인 (.env 편집 시도 → 차단)
+echo '{"tool_input":{"file_path":"/x/.env"}}' | bash .claude/hooks/protect-paths.sh; echo "exit=$?"
+# 기대: BLOCKED 메시지 + exit=2
+
+# 일반 경로는 통과
+echo '{"tool_input":{"file_path":"/x/src/a.ts"}}' | bash .claude/hooks/protect-paths.sh; echo "exit=$?"
+# 기대: exit=0</code></pre>
+</div>
+
+    <h4>python 훅 — self-test</h4>
+    <div class="code">
+  <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code># 파이썬 훅은 내장 self-test로 로직만 빠르게 검증
+python3 .claude/hooks/changelog-reminder.py --selftest   # -&gt; selftest OK
+python3 .claude/hooks/precompact-handoff.py --selftest    # -&gt; selftest OK</code></pre>
+</div>
+
+    <h4>알림 훅 — 바로 울려보기</h4>
+    <div class="code">
+  <div class="lbl"><span class="path">터미널</span><button class="copy">복사</button></div>
+<pre><code># 알림 훅은 payload 없이도 라벨/사운드 인자로 바로 울려본다
+echo '{}' | bash .claude/hooks/notify-win.sh "테스트 알림" "chimes.wav"   # WSL2
+echo '{"title":"Claude","message":"완료"}' | bash .claude/hooks/notify-mac.sh  # macOS</code></pre>
+</div>
+
+    <h4>실제 발동 확인</h4>
+    <ol class="steps">
+      <li><strong>배선 확인.</strong> <code>.claude/settings.json</code>의 <code>hooks.&lt;이벤트&gt;</code>에 matcher·command가 있는지 본다.</li>
+      <li><strong>이벤트 유발.</strong> <code>.ts</code> 파일을 편집하면 format/lint 훅이, 응답을 끝내면 typecheck·알림 훅이 돈다.</li>
+      <li><strong>결과 관찰.</strong> 차단 훅은 도구가 막히거나 Claude가 스스로 고친다. 알림 훅은 소리·배너가 난다.</li>
+      <li><strong>안 되면 격리.</strong> 위의 손 테스트로 스크립트 단독 동작을 먼저 확인한 뒤 배선을 의심한다.</li>
+    </ol>
+
+    <div class="tblwrap">
+    <table>
+      <thead><tr><th>증상</th><th>원인 · 조치</th></tr></thead>
+      <tbody>
+        <tr><td>훅이 안 돈다</td><td>settings.json 배선 누락/오타, 스크립트 실행권한(<code>chmod +x</code>), <code>$CLAUDE_PROJECT_DIR</code> 경로 확인</td></tr>
+        <tr><td>매 편집이 막힌다</td><td>lint/typecheck 훅이 도구 없음을 위반으로 오인. 버전 체크(<code>--version</code>) 가드가 있는지 확인</td></tr>
+        <tr><td><code>jq: command not found</code></td><td>bash 훅이 <code>jq</code> 의존. <code>jq</code> 설치 또는 파싱을 대체</td></tr>
+        <tr><td>Stop 훅이 안 끝난다</td><td>exit 2 무한 루프. <code>stop_hook_active</code> 가드 확인</td></tr>
+        <tr><td>Windows 토스트가 안 뜬다</td><td>집중 지원/방해 금지 해제, 앱별 알림에서 PowerShell 배너 켜기(OS 설정, 코드로 못 뚫음)</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <footer>
+      <p>모든 코드는 <code>.claude/hooks/</code>·<code>.claude/settings.json</code> 실제 파일에서 그대로 가져와 설명했다. 훅은 당신 권한으로 실행되니, 넣기 전 손 테스트로 동작과 exit code를 확인하라.</p>
+      <div class="next">
+        <a href="03-skills-guide.html">&larr; 이전 · 스킬 가이드</a>
+        <span></span>
+      </div>
+    </footer>
+  </section>
+
+<script>
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.code').querySelector('pre code');
+      var text = code.innerText;
+      navigator.clipboard.writeText(text).then(function(){
+        var old = btn.textContent;
+        btn.textContent = '복사됨';
+        btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove('done'); }, 1400);
+      });
+    });
+  });
+</script>
+</main>
+</div>
+</body>
+</html>
