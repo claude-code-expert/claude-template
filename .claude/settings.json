@@ -49,6 +49,28 @@
             "timeout": 20
           }
         ]
+      },
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/dump-handoff.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/inject-handoff.sh\"",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "Stop": [
@@ -75,6 +97,11 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-win.sh\" \"입력이 필요합니다\" \"chimes.wav\"",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify-mac.sh\"",
             "timeout": 15
           }
         ]
