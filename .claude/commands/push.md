@@ -1,6 +1,6 @@
 ---
 description: 현재 브랜치에서 add + 한 줄 커밋 후 origin으로 push
-allowed-tools: Bash(git add:*), Bash(git commit:*), Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(git push:*), Bash(git rev-parse:*)
+allowed-tools: Bash(git add:*), Bash(git commit:*), Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(git push:*)
 ---
 
 현재 브랜치: !`git branch --show-current`
