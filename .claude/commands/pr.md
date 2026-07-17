@@ -1,11 +1,10 @@
 ---
-description: commit + push 후 현재 브랜치에서 base 브랜치로 PR 생성 (base=인자, 없으면 기본 브랜치)
+description: commit + push 후 현재 브랜치에서 base 브랜치로 PR 생성 (base=인자, 없으면 develop)
 argument-hint: "[base-branch]"
-allowed-tools: Bash(git add:*), Bash(git commit:*), Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(git push:*), Bash(git rev-parse:*), Bash(git log:*), Bash(gh pr:*), Bash(gh repo:*)
+allowed-tools: Bash(git add:*), Bash(git commit:*), Bash(git status:*), Bash(git diff:*), Bash(git branch:*), Bash(git push:*), Bash(git rev-parse:*), Bash(git log:*), Bash(git merge-base:*), Bash(gh pr:*)
 ---
 
 현재 브랜치(head): !`git branch --show-current`
-저장소 기본 브랜치: !`gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null || echo "unknown"`
 base 인자: "$1"
 
 ## 작업
@@ -16,14 +15,14 @@ base 인자: "$1"
 2. **push**: [push](push.md) 규칙대로 origin에 push. upstream 없으면 `git push -u origin <현재 브랜치>`.
 3. **base 결정**:
    - `$1` 이 있으면 base = `$1`
-   - 없으면 base = 저장소 기본 브랜치 (`gh pr create` 의 `--base` 생략 → 자동 기본 브랜치 사용)
+   - 없으면 base = `develop`
 4. **PR 생성**:
-   - PR 본문은 `git log <base>..HEAD --oneline` (커밋 제목 목록만, diff 아님)으로 요약해서 만든다.
+   - PR 본문은 `git log <base>..HEAD --oneline` (커밋 제목 목록만, diff 아님)으로 요약해서 만든다. base가 로컬에 없으면 `origin/<base>` 로 대체.
    - `gh pr create --base <base> --head <현재 브랜치> --title "<대표 한 줄>" --body "<커밋 목록 요약>"`
-   - `$1` 없어 기본 브랜치로 낼 땐 `--base` 생략.
 
 ## 규칙
 
 - head == base 이면(현재 브랜치를 자기 자신에 PR) 중단하고 "base와 head가 같음: <브랜치>" 한 줄만 출력.
+- `git merge-base <현재 브랜치> origin/<base>` 가 비면(공통 히스토리 없음) 중단하고 "base와 공통 히스토리 없음: <base>" 한 줄만 출력. 강제하지 마라.
 - 이미 열린 PR이 있어 `gh pr create` 가 실패하면 강제하지 말고 `gh pr view --json url -q .url` 로 기존 PR URL만 보고.
 - 생성 성공 시 PR URL 한 줄 외 추가 출력 금지.
