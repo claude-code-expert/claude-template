@@ -9,7 +9,7 @@ description: >
 
 # handoff — 세션 인계
 
-세션을 넘길 때 상태를 **`.handoff.md`(레포 루트)** 한 파일에 적는다. 다음 세션은 이 파일을 먼저 읽고 이어간다.
+세션을 넘길 때 상태를 **`HANDOFF.md`(레포 루트)** 한 파일에 적는다. 다음 세션은 이 파일을 먼저 읽고 이어간다.
 
 ## 무엇을 적나 — 세 가지만
 
@@ -26,7 +26,7 @@ description: >
 
 ## precompact 훅과의 관계
 
-`.claude/hooks/precompact-handoff.py`(PreCompact 훅)가 압축 직전 **기계적 스냅샷**을 `.handoff.md`에 자동으로 덧붙인다 — 브랜치·변경파일·최근 사용자 메시지. 이건 안전망일 뿐 지능형 인계가 아니다.
+`.claude/hooks/dump-handoff.sh`(PreCompact:manual 훅)가 압축 직전 **기계적 스냅샷**을 `HANDOFF.md`에 자동으로 덧붙인다 — 브랜치·변경파일·최근 사용자 메시지. 이건 안전망일 뿐 지능형 인계가 아니다. 재개 시엔 `inject-handoff.sh`(SessionStart:resume)가 이 파일을 컨텍스트에 주입한다.
 
 - 이 스킬이 발동하면 파일에 남은 `## ⏸ pre-compact snapshot ...` 섹션들을 **읽어서 위 세 항목으로 정리**하고, 정리된 자동 섹션은 지운다(중복 방지).
 - 훅은 모델을 부를 수 없어(PreCompact는 컨텍스트 주입 미지원) 스냅샷만 남긴다. 사람이 읽을 인계문은 이 스킬이 만든다.
