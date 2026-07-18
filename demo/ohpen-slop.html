@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--
+  OhPen 랜딩 — SLOP 버전 (안티패턴 데모)
+  일부러 AI 슬롭 tell을 전부 넣음: 보라 그라디언트 클리셰, 번역투 마케팅 카피,
+  "단순한 X가 아니라 Y", rule-of-three 카드, emoji 헤딩, 가짜 통계/후기,
+  booster CTA. 비교용. 실제로 쓰지 말 것.
+-->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OhPen — 당신의 프레젠테이션을 혁신하세요</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #333; line-height: 1.6; }
+  .tag { position: fixed; top: 12px; right: 12px; z-index: 9; background: #764ba2; color: #fff;
+         font-size: 11px; padding: 5px 10px; border-radius: 20px; letter-spacing: .5px; }
+
+  .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
+          text-align: center; padding: 110px 20px 96px; }
+  .hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 20px; line-height: 1.2; }
+  .hero p { font-size: 20px; max-width: 720px; margin: 0 auto 36px; opacity: .95; }
+  .btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 16px 34px; border-radius: 50px; font-weight: 700;
+         font-size: 17px; text-decoration: none; transition: transform .2s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-1 { background: #fff; color: #764ba2; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  .btn-2 { background: rgba(255,255,255,.15); color: #fff; border: 2px solid rgba(255,255,255,.6); }
+
+  .features { padding: 90px 20px; text-align: center; background: #f8f9ff; }
+  .features h2 { font-size: 36px; font-weight: 800; margin-bottom: 12px; }
+  .features > p { color: #777; margin-bottom: 56px; font-size: 18px; }
+  .cards { display: flex; gap: 28px; max-width: 1080px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+  .card { flex: 1 1 300px; background: #fff; border-radius: 16px; padding: 40px 30px;
+          box-shadow: 0 8px 30px rgba(102,126,234,.12); }
+  .card .ico { font-size: 46px; margin-bottom: 18px; }
+  .card h3 { font-size: 22px; margin-bottom: 14px; color: #764ba2; }
+  .card p { color: #666; font-size: 15px; }
+
+  .stats { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;
+           display: flex; justify-content: center; gap: 70px; padding: 60px 20px; flex-wrap: wrap; text-align: center; }
+  .stat .n { font-size: 44px; font-weight: 800; }
+  .stat .l { opacity: .9; }
+
+  .quote { padding: 90px 20px; text-align: center; max-width: 760px; margin: 0 auto; }
+  .quote .av { width: 72px; height: 72px; border-radius: 50%;
+               background: linear-gradient(135deg,#667eea,#764ba2); margin: 0 auto 22px; }
+  .quote p { font-size: 24px; font-style: italic; color: #444; margin-bottom: 18px; }
+  .quote .who { color: #888; font-weight: 600; }
+
+  .cta { background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); color: #fff;
+         text-align: center; padding: 90px 20px; }
+  .cta h2 { font-size: 40px; font-weight: 800; margin-bottom: 18px; }
+  .cta p { font-size: 19px; opacity: .95; margin-bottom: 34px; }
+
+  footer { background: #2d2440; color: #bbb; text-align: center; padding: 34px 20px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="tag">AI 슬롭 · 안티패턴 데모</div>
+
+<section class="hero">
+  <h1>OhPen의 강력한 힘으로<br>당신의 프레젠테이션을 혁신하세요 🚀</h1>
+  <p>오늘날 빠르게 변화하는 시대에, OhPen은 단순한 슬라이드 포인터가 아닙니다 — 하나의 경험입니다.
+     손쉽고 강력하며 직관적인 기능으로 여러분의 발표를 원활하게 한 단계 업그레이드하세요.</p>
+  <div class="btns">
+    <a class="btn btn-1" href="#">지금 무료로 시작하기</a>
+    <a class="btn btn-2" href="#">더 알아보기</a>
+  </div>
+</section>
+
+<section class="features">
+  <h2>왜 OhPen을 선택해야 할까요? ✨</h2>
+  <p>업계를 선도하는 혁신적인 기능들을 만나보세요</p>
+  <div class="cards">
+    <div class="card">
+      <div class="ico">🎯</div>
+      <h3>강력한 포인터 강조</h3>
+      <p><strong>핵심:</strong> 혁신적인 포인터 기능으로 청중의 시선을 손쉽게 사로잡고, 원활하게 발표를 이끌어가세요.</p>
+    </div>
+    <div class="card">
+      <div class="ico">✏️</div>
+      <h3>직관적인 글쓰기</h3>
+      <p><strong>핵심:</strong> 강력하고 유연한 필기 도구로 아이디어를 자유롭게 표현하며 완벽한 프레젠테이션을 완성하세요.</p>
+    </div>
+    <div class="card">
+      <div class="ico">📦</div>
+      <h3>다재다능한 도형</h3>
+      <p><strong>핵심:</strong> 라인과 박스를 손쉽게 그려 중요한 내용을 강조하고, 청중에게 잊지 못할 경험을 선사하세요.</p>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat"><div class="n">10,000+</div><div class="l">행복한 사용자</div></div>
+  <div class="stat"><div class="n">99.9%</div><div class="l">가동 시간</div></div>
+  <div class="stat"><div class="n">24/7</div><div class="l">고객 지원</div></div>
+</section>
+
+<section class="quote">
+  <div class="av"></div>
+  <p>"OhPen은 제가 발표하는 방식을 완전히 혁신했어요. 정말 게임 체인저입니다!"</p>
+  <div class="who">— 김서연, 마케팅 매니저</div>
+</section>
+
+<section class="cta">
+  <h2>당신의 프레젠테이션을 한 단계 끌어올릴 준비가 되셨나요?</h2>
+  <p>지금 바로 시작하고 당신의 잠재력을 마음껏 펼쳐보세요.</p>
+  <a class="btn btn-1" href="#">지금 무료로 시작하기</a>
+</section>
+
+<footer>© 2026 OhPen. All rights reserved. Made with ❤️ for presenters everywhere.</footer>
+</body>
+</html>
