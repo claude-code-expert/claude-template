@@ -6,6 +6,10 @@
 #   CLAUDE_NOTIFY_DONE_VOLUME  기본 0.5  (0=음소거)
 set -uo pipefail
 
+# 볼륨·사운드 설정 로드(있으면). 파일 값이 다음 알림부터 적용된다(재시작 불필요).
+conf="$(cd "$(dirname "$0")" 2>/dev/null && pwd)/notify.conf"
+[ -f "$conf" ] && . "$conf"
+
 payload="$(cat)"
 
 # Stop 훅 stdin 엔 응답 텍스트가 없다. transcript_path 로 JSONL 을 읽어야 한다.
@@ -37,14 +41,10 @@ summary="$(printf '%s' "$text" \
 
 [ -z "$summary" ] && exit 0
 
-# 알림창 표시. terminal-notifier 있으면 우선(권한 없이 우상단 알림센터에 확실히 뜸),
-# 없으면 osascript 폴백. terminal-notifier 는 인자 직접 전달이라 따옴표 이스케이프 불필요.
-if command -v terminal-notifier >/dev/null 2>&1; then
-  terminal-notifier -title "Claude Code — 응답 완료" -subtitle "3줄 요약" -message "$summary" >/dev/null 2>&1 || true
-else
-  safe="$(printf '%s' "$summary" | tr -d '\\"')"
-  osascript -e "display notification \"$safe\" with title \"Claude Code — 응답 완료\" subtitle \"3줄 요약\"" >/dev/null 2>&1 || true
-fi
+# 알림창 표시 — osascript(macOS 26/Tahoe 에서 렌더됨. "Script Editor" 앱 알림 허용 필요).
+# 주입 방지: 따옴표·백슬래시 제거. 3줄을 공백으로 합침(AppleScript 리터럴이 생 줄바꿈 못 담음 → 배너도 어차피 한 줄).
+safe="$(printf '%s' "$summary" | tr -d '\\"' | tr '\n' ' ')"
+osascript -e "display notification \"$safe\" with title \"Claude Code — 응답 완료\" subtitle \"3줄 요약\"" >/dev/null 2>&1 || true
 
 # 완료음(볼륨 지정). 0 이면 무음. 훅 안 막게 백그라운드.
 sound="${CLAUDE_NOTIFY_DONE_SOUND:-/System/Library/Sounds/Glass.aiff}"

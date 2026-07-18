@@ -13,6 +13,10 @@
 # (display notification 의 `sound name` 은 시스템 알림 볼륨 고정 — 알림별 조절 불가)
 set -uo pipefail
 
+# 볼륨·사운드 설정 로드(있으면). 파일 값이 다음 알림부터 적용된다(재시작 불필요).
+conf="$(cd "$(dirname "$0")" 2>/dev/null && pwd)/notify.conf"
+[ -f "$conf" ] && . "$conf"
+
 payload="$(cat)"
 
 # 이벤트 판별. jq 우선, 없으면 sed fallback.
@@ -36,16 +40,13 @@ case "$event" in
     ;;
 esac
 
-# 배너 표시. terminal-notifier 있으면 우선(권한 설정 없이 우상단 알림센터에 확실히 뜸),
-# 없으면 osascript 폴백(호출 앱에 알림 권한 필요).
-if command -v terminal-notifier >/dev/null 2>&1; then
-  terminal-notifier -title "$title" -message "$msg" >/dev/null 2>&1 || true
-else
-  # osascript -e 주입 방지: 따옴표·백슬래시 제거 후 삽입.
-  safe_msg="$(printf '%s' "$msg" | tr -d '\\"')"
-  safe_title="$(printf '%s' "$title" | tr -d '\\"')"
-  osascript -e "display notification \"$safe_msg\" with title \"$safe_title\"" >/dev/null 2>&1 || true
-fi
+# 배너 표시 — osascript(Apple 1차 메커니즘, macOS 26/Tahoe 에서 렌더됨).
+# 알림은 "Script Editor" 앱으로 귀속되니 시스템 설정 > 알림 > Script Editor 가 허용이어야 뜬다.
+# (terminal-notifier 2.0.0 은 레거시 NSUserNotification 이라 Tahoe 에서 배너 렌더 안 됨 → 안 씀.)
+# 주입 방지: 따옴표·백슬래시 제거. 줄바꿈은 공백으로(AppleScript 리터럴이 생 줄바꿈 못 담음).
+safe_msg="$(printf '%s' "$msg" | tr -d '\\"' | tr '\n' ' ')"
+safe_title="$(printf '%s' "$title" | tr -d '\\"' | tr '\n' ' ')"
+osascript -e "display notification \"$safe_msg\" with title \"$safe_title\"" >/dev/null 2>&1 || true
 
 # 볼륨 지정 재생. vol=0 이면 무음, 파일 없으면 건너뜀. 훅 안 막게 백그라운드.
 if [ "$vol" != "0" ] && [ "$vol" != "0.0" ] && [ -f "$sound" ]; then
