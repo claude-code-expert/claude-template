@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="100" viewBox="0 0 160 100" role="img" aria-label="강의 03 — 스킬(Skills) 가이드">
+  <title>강의 03 · 스킬(Skills) 가이드</title>
+  <rect x=".5" y=".5" width="159" height="99" rx="8" fill="#ffffff" stroke="#e5e7eb"/>
+
+  <!-- header -->
+  <text x="14" y="24" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10" fill="#9ca3af">03</text>
+  <text x="31" y="24" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="8" font-weight="600" letter-spacing="1.3" fill="#2563eb">AUTO</text>
+  <text x="14" y="52" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="16" font-weight="700" letter-spacing="-0.5" fill="#111827">Skills</text>
+  <text x="14" y="73" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="10" fill="#6b7280">자동 발동</text>
+
+  <!-- divider -->
+  <line x1="100" y1="22" x2="100" y2="78" stroke="#e5e7eb"/>
+
+  <!-- motif: 발화(칩) → 조건 충족 시 자동 발동(점선 화살표) → 활성 스킬 -->
+  <rect x="107" y="28" width="38" height="15" rx="7.5" fill="#ffffff" stroke="#d1d5db"/>
+  <g fill="#9ca3af">
+    <circle cx="120" cy="35.5" r="1.4"/>
+    <circle cx="126" cy="35.5" r="1.4"/>
+    <circle cx="132" cy="35.5" r="1.4"/>
+  </g>
+  <line x1="126" y1="45" x2="126" y2="54" stroke="#9ca3af" stroke-width="1" stroke-dasharray="2 2"/>
+  <path d="M126 58 l-3.5 -4.5 h7 z" fill="#9ca3af"/>
+  <rect x="112" y="60" width="28" height="14" rx="3" fill="#2563eb"/>
+</svg>

@@ -359,6 +359,17 @@ python3 .claude/scripts/token-usage.py &lt;파일.jsonl&gt;  <span class="tok-c"
   </main>
 </div>
 <script>
+  // 목차·본문 앵커: 호스트 SPA 라우터가 해시 변경을 가로채 rehydrate 에러를 내므로,
+  // 기본 해시 이동을 막고 직접 스크롤한다.
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var target = document.getElementById(a.getAttribute('href').slice(1));
+      if(!target) return;
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
   document.querySelectorAll('.copy').forEach(function(btn){
     btn.addEventListener('click', function(){
       var code = btn.closest('.code').querySelector('pre code');
