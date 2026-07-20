@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="100" viewBox="0 0 160 100" role="img" aria-label="강의 02 — 슬래시 커맨드 가이드">
+  <title>강의 02 · 슬래시 커맨드 가이드</title>
+  <rect x=".5" y=".5" width="159" height="99" rx="8" fill="#ffffff" stroke="#e5e7eb"/>
+
+  <!-- header -->
+  <text x="14" y="24" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10" fill="#9ca3af">02</text>
+  <text x="31" y="24" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="8" font-weight="600" letter-spacing="1.3" fill="#2563eb">SLASH</text>
+  <text x="14" y="52" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="16" font-weight="700" letter-spacing="-0.5" fill="#111827">Commands</text>
+  <text x="14" y="73" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="10" fill="#6b7280">슬래시 커맨드</text>
+
+  <!-- divider -->
+  <line x1="100" y1="22" x2="100" y2="78" stroke="#e5e7eb"/>
+
+  <!-- motif: 프롬프트 창의 슬래시 입력 + 커서 + 출력 라인 -->
+  <rect x="107" y="34" width="39" height="32" rx="4" fill="#f6f7f9" stroke="#e5e7eb"/>
+  <text x="112" y="50" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="13" font-weight="600" fill="#2563eb">/</text>
+  <rect x="119" y="41" width="7" height="10" fill="#111827"/>
+  <rect x="112" y="56" width="27" height="3" rx="1.5" fill="#d1d5db"/>
+  <rect x="112" y="61" width="16" height="3" rx="1.5" fill="#e5e7eb"/>
+</svg>

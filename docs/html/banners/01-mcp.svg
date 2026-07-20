@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="100" viewBox="0 0 160 100" role="img" aria-label="강의 01 — MCP 설치·구성 가이드">
+  <title>강의 01 · MCP 설치·구성 가이드</title>
+  <rect x=".5" y=".5" width="159" height="99" rx="8" fill="#ffffff" stroke="#e5e7eb"/>
+
+  <!-- header -->
+  <text x="14" y="24" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10" fill="#9ca3af">01</text>
+  <text x="31" y="24" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="8" font-weight="600" letter-spacing="1.3" fill="#2563eb">PROTOCOL</text>
+  <text x="14" y="52" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="16" font-weight="700" letter-spacing="-0.5" fill="#111827">MCP</text>
+  <text x="14" y="73" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="10" fill="#6b7280">설치·구성 가이드</text>
+
+  <!-- divider -->
+  <line x1="100" y1="22" x2="100" y2="78" stroke="#e5e7eb"/>
+
+  <!-- motif: 표준 커넥터 하나에 서버 3종을 갈아끼우는 허브 -->
+  <g stroke="#9ca3af" stroke-width="1">
+    <line x1="127" y1="50" x2="127" y2="32"/>
+    <line x1="127" y1="50" x2="112" y2="64"/>
+    <line x1="127" y1="50" x2="142" y2="64"/>
+  </g>
+  <g fill="#ffffff" stroke="#d1d5db" stroke-width="1">
+    <rect x="123" y="28" width="8" height="8" rx="1.5"/>
+    <rect x="108" y="60" width="8" height="8" rx="1.5"/>
+    <rect x="138" y="60" width="8" height="8" rx="1.5"/>
+  </g>
+  <rect x="120" y="43" width="14" height="14" rx="3" fill="#2563eb"/>
+</svg>

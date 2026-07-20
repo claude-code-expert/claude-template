@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="100" viewBox="0 0 160 100" role="img" aria-label="강의 04 — 훅(Hooks) 가이드">
+  <title>강의 04 · 훅(Hooks) 가이드</title>
+  <rect x=".5" y=".5" width="159" height="99" rx="8" fill="#ffffff" stroke="#e5e7eb"/>
+
+  <!-- header -->
+  <text x="14" y="24" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10" fill="#9ca3af">04</text>
+  <text x="31" y="24" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="8" font-weight="600" letter-spacing="1.3" fill="#2563eb">EVENT</text>
+  <text x="14" y="52" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="16" font-weight="700" letter-spacing="-0.5" fill="#111827">Hooks</text>
+  <text x="14" y="73" font-family="'IBM Plex Sans KR',system-ui,sans-serif" font-size="10" fill="#6b7280">이벤트 훅</text>
+
+  <!-- divider -->
+  <line x1="100" y1="22" x2="100" y2="78" stroke="#e5e7eb"/>
+
+  <!-- motif: 이벤트 → 훅 → exit 0(통과)·exit 2(차단) 게이트 -->
+  <g stroke="#9ca3af" stroke-width="1">
+    <line x1="109" y1="50" x2="116" y2="50"/>
+    <line x1="129" y1="50" x2="136" y2="39"/>
+    <line x1="129" y1="50" x2="136" y2="61"/>
+  </g>
+  <circle cx="107" cy="50" r="2.8" fill="#9ca3af"/>
+  <rect x="116" y="44" width="13" height="12" rx="2" fill="#111827"/>
+  <circle cx="138" cy="38" r="2.8" fill="#15803d"/>
+  <circle cx="138" cy="62" r="2.8" fill="#b91c1c"/>
+  <text x="143" y="41" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="7" fill="#15803d">0</text>
+  <text x="143" y="65" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="7" fill="#b91c1c">2</text>
+</svg>

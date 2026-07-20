@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스킬(Skills) 가이드 — 강의 3편</title>
+<!-- 폰트 선택 이유: 본문 IBM Plex Sans KR(한/영/숫자 균형·UI 가독성), 코드 JetBrains Mono(0/O·1/l 구분). 로딩 실패 시 system 폴백. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* guide.css — Claude 하네스 강의 공통 스타일
+   anti-ai-slop 규칙 준수: 그라데이션·컬러글로우·장식모션·이모지불릿 없음.
+   무채색 베이스 + 액센트 1색(파랑, 링크/액티브 전용). 위계는 크기·굵기·여백으로.
+   폰트: 본문 IBM Plex Sans KR(한/영/숫자 균형·UI 가독성), 코드 JetBrains Mono(0/O·1/l 구분).
+*/
+:root{
+  --ink-900:#111827; --ink-700:#374151; --ink-600:#4b5563;
+  --ink-500:#6b7280; --ink-400:#9ca3af;
+  --line:#e5e7eb; --line-strong:#d1d5db;
+  --bg:#ffffff; --bg-soft:#f9fafb; --code-bg:#f6f7f9;
+  --accent:#2563eb; --accent-strong:#1d4ed8;
+  --ok:#15803d; --warn:#b45309; --danger:#b91c1c;
+  --sans:"IBM Plex Sans KR", ui-sans-serif, system-ui, "Segoe UI", "Malgun Gothic", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--ink-700);
+  font-family:var(--sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px; display:grid;
+  grid-template-columns:232px minmax(0,1fr); gap:48px;}
+@media(max-width:860px){.wrap{grid-template-columns:1fr; gap:0}}
+
+/* ── 사이드 목차 ── */
+aside{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto;
+  padding:40px 0 40px; border-right:1px solid var(--line);}
+@media(max-width:860px){aside{position:static; height:auto; border-right:0;
+  border-bottom:1px solid var(--line); padding:24px 0}}
+.series{font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--ink-400); font-weight:600; margin:0 0 4px}
+aside h1{font-size:18px; line-height:1.3; color:var(--ink-900);
+  margin:0 0 24px; font-weight:700;}
+nav a{display:block; padding:6px 12px 6px 0; color:var(--ink-500);
+  text-decoration:none; font-size:14px; border-left:2px solid transparent;
+  padding-left:12px; transition:color .12s, border-color .12s;}
+nav a:hover{color:var(--ink-900)}
+nav a .n{color:var(--ink-400); font-variant-numeric:tabular-nums; margin-right:8px}
+
+/* ── 본문 ── */
+main{padding:56px 0 120px; max-width:none;}
+main > *{max-width:68ch}
+.lede{font-size:20px; line-height:1.55; color:var(--ink-600); margin:0 0 8px}
+header.doc h1{font-size:39px; line-height:1.12; letter-spacing:-0.02em;
+  color:var(--ink-900); font-weight:700; margin:8px 0 20px;}
+header.doc .meta{font-size:13px; color:var(--ink-400); margin:0 0 40px;
+  padding-bottom:32px; border-bottom:1px solid var(--line);}
+header.doc .meta b{color:var(--ink-600); font-weight:600}
+
+section{padding:48px 0 8px; border-top:1px solid var(--line); margin-top:8px}
+section:first-of-type{border-top:0}
+h2{font-size:28px; line-height:1.2; letter-spacing:-0.01em; color:var(--ink-900);
+  font-weight:700; margin:0 0 6px; scroll-margin-top:24px}
+h2 .kicker{display:block; font-size:13px; font-weight:600; letter-spacing:.03em;
+  color:var(--accent); text-transform:uppercase; margin-bottom:8px}
+h3{font-size:20px; color:var(--ink-900); font-weight:600; margin:36px 0 8px}
+h4{font-size:15px; color:var(--ink-900); font-weight:600; margin:24px 0 4px}
+p{margin:0 0 16px}
+strong{color:var(--ink-900); font-weight:600}
+a{color:var(--accent); text-decoration:none}
+a:hover{color:var(--accent-strong); text-decoration:underline}
+code{font-family:var(--mono); font-size:.88em; background:var(--code-bg);
+  border:1px solid var(--line); border-radius:4px; padding:1px 5px; color:var(--ink-900)}
+
+ul,ol{margin:0 0 16px; padding-left:22px}
+li{margin:6px 0}
+li::marker{color:var(--ink-400)}
+ul.tight li{margin:3px 0}
+
+/* ── 코드 블록 ── */
+.code{position:relative; margin:16px 0 24px; max-width:68ch}
+.code pre{margin:0; background:var(--code-bg); border:1px solid var(--line);
+  border-radius:8px; padding:16px 18px; overflow-x:auto;}
+.code pre code{background:none; border:0; padding:0; font-size:13.5px;
+  line-height:1.65; color:var(--ink-900)}
+.code .lbl{display:flex; justify-content:space-between; align-items:center;
+  font-size:12px; color:var(--ink-500); margin-bottom:6px}
+.code .lbl .path{font-family:var(--mono); color:var(--ink-600)}
+.copy{font-family:var(--sans); font-size:12px; color:var(--ink-500);
+  background:none; border:1px solid var(--line); border-radius:5px;
+  padding:2px 9px; cursor:pointer; transition:color .12s, border-color .12s, background .12s}
+.copy:hover{color:var(--ink-900); border-color:var(--line-strong)}
+.copy.done{color:var(--ok); border-color:var(--ok)}
+.tok-c{color:var(--ink-400)} /* 주석 */
+.tok-k{color:var(--accent-strong); font-weight:500} /* 키/명령 */
+.tok-s{color:var(--ok)} /* 문자열 */
+
+/* ── 표 ── */
+.tblwrap{overflow-x:auto; margin:16px 0 24px; max-width:68ch}
+table{border-collapse:collapse; width:100%; font-size:14px}
+th,td{text-align:left; padding:10px 14px; border-bottom:1px solid var(--line);
+  vertical-align:top}
+th{color:var(--ink-500); font-weight:600; font-size:12.5px; letter-spacing:.02em;
+  text-transform:uppercase; border-bottom:1px solid var(--line-strong)}
+td code{font-size:12.5px}
+tr td:first-child{white-space:nowrap; color:var(--ink-900); font-weight:500}
+
+/* ── 콜아웃 ── */
+.note{margin:20px 0 24px; padding:14px 18px; border:1px solid var(--line);
+  border-left:3px solid var(--ink-400); border-radius:0 6px 6px 0;
+  background:var(--bg-soft); font-size:14.5px; max-width:68ch}
+.note.warn{border-left-color:var(--warn)}
+.note.ok{border-left-color:var(--ok)}
+.note p:last-child{margin-bottom:0}
+.note .tag{display:block; font-size:12px; font-weight:600; letter-spacing:.03em;
+  text-transform:uppercase; margin-bottom:4px; color:var(--ink-500)}
+.note.warn .tag{color:var(--warn)}
+.note.ok .tag{color:var(--ok)}
+
+.steps{counter-reset:s; list-style:none; padding-left:0; margin:16px 0 24px}
+.steps>li{counter-increment:s; position:relative; padding-left:38px; margin:14px 0}
+.steps>li::before{content:counter(s); position:absolute; left:0; top:-1px;
+  width:26px; height:26px; border:1px solid var(--line-strong); border-radius:50%;
+  text-align:center; line-height:24px; font-size:13px; font-weight:600;
+  color:var(--ink-600); font-family:var(--mono)}
+
+footer{margin-top:64px; padding-top:28px; border-top:1px solid var(--line);
+  font-size:13px; color:var(--ink-400); max-width:68ch}
+footer a{color:var(--ink-500)}
+.next{display:flex; justify-content:space-between; gap:16px; margin-top:8px;
+  font-size:14px}
+kbd{font-family:var(--mono); font-size:12px; background:#fff; border:1px solid var(--line-strong);
+  border-bottom-width:2px; border-radius:4px; padding:1px 6px; color:var(--ink-700)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside>
+    <img src="banners/03-skills.svg" width="160" height="100" alt="스킬 가이드 배너" style="display:block;margin:0 0 20px">
+    <p class="series">Claude 하네스 강의 · 03</p>
+    <h1>스킬(Skills) 가이드</h1>
+    <nav>
+      <a href="#what"><span class="n">01</span>스킬이란 / 커맨드와 차이</a>
+      <a href="#create"><span class="n">02</span>만드는 법 · 생성 프롬프트</a>
+      <a href="#skills"><span class="n">03</span>번들된 스킬 5종</a>
+      <a href="#run"><span class="n">04</span>발화·실행 방법</a>
+      <a href="#test"><span class="n">05</span>호출 테스트</a>
+    </nav>
+  </aside>
+  <main>
+    <header class="doc">
+      <p class="lede">커맨드는 <code>/이름</code>으로 부른다. 스킬은 부르지 않는다 — 조건에 맞는 말을 하면 알아서 뜬다. 그 "조건"을 어디에 쓰느냐가 스킬의 전부다.</p>
+      <h1>스킬(Skills) 가이드</h1>
+      <p class="meta">강의 3편 · 대상 <b>Claude Code 사용자</b> · <b>.claude/skills/</b> 실제 코드 기준</p>
+    </header>
+
+    <!-- 01 -->
+    <section id="what">
+      <h2><span class="kicker">개념</span>스킬이란 무엇이고 커맨드와 뭐가 다른가</h2>
+      <p><strong>스킬(Skill)</strong>은 특정 종류의 작업이 시작될 때 Claude가 따라야 할 지침 묶음이다. 실체는 <code>.claude/skills/&lt;name&gt;/SKILL.md</code> 파일 하나이며, 필요하면 옆에 <code>references/</code>(상세 기준)와 <code>scripts/</code>(실제 계산·작업 스크립트)를 둔다.</p>
+      <p>핵심 차이는 <strong>호출 방식</strong>이다. 커맨드는 <code>/git-commit</code>처럼 이름을 쳐서 <strong>명시적으로</strong> 부른다. 스킬은 이름을 부르지 않는다. <strong>조건에 맞는 발화가 나오면 자동으로 발동</strong>한다. 예컨대 "이 리포트 예쁘게 만들어줘"라고만 해도 <code>anti-ai-slop</code>이 알아서 걸린다.</p>
+
+      <div class="tblwrap">
+      <table>
+        <thead><tr><th></th><th>커맨드</th><th>스킬</th></tr></thead>
+        <tbody>
+          <tr><td>호출</td><td><code>/name</code> 명시 호출</td><td>발화 조건 충족 시 자동 발동</td></tr>
+          <tr><td>위치</td><td><code>.claude/commands/*.md</code></td><td><code>.claude/skills/&lt;name&gt;/SKILL.md</code></td></tr>
+          <tr><td>발동 스위치</td><td>내가 이름을 침</td><td><code>description</code>에 쓴 트리거 문구</td></tr>
+          <tr><td>동반 자산</td><td>단일 파일</td><td><code>references/</code>·<code>scripts/</code> 동반 가능</td></tr>
+          <tr><td>쓰기 좋은 것</td><td>매번 같은 정형 작업</td><td>"이럴 때면 항상 이렇게" 류 판단·게이트</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>SKILL.md 구조</h3>
+      <p>파일은 <strong>frontmatter</strong>(YAML 머리말)와 <strong>body</strong>로 나뉜다.</p>
+      <div class="code">
+        <div class="lbl"><span class="path">.claude/skills/&lt;name&gt;/SKILL.md</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-c">---</span>
+<span class="tok-k">name</span>: my-skill
+<span class="tok-k">description</span>: <span class="tok-s">이 스킬이 "언제" 발동하는지. 트리거 발화 예를 여기 넣는다.</span>
+<span class="tok-c">---</span>
+
+<span class="tok-c"># 여기부터 body — 발동 후 Claude가 따르는 지침</span>
+- 무엇을 확인하고
+- 어떤 순서로 처리하고
+- references/ 의 어떤 파일을 언제 읽을지</code></pre>
+      </div>
+      <ul class="tight">
+        <li><strong><code>name</code></strong> — 스킬 식별자. 보통 디렉터리명과 맞춘다.</li>
+        <li><strong><code>description</code></strong> — <strong>발동 트리거</strong>. Claude는 이 문장을 보고 "지금 이 스킬을 켤까"를 판단한다. 여기에 "언제 발동하는지"를 구체적으로 써야 자동으로 뜬다.</li>
+        <li><strong>body</strong> — 발동 후 Claude가 실제로 따르는 지침.</li>
+        <li><strong><code>references/</code></strong> — 필요할 때만 읽는 상세 기준. body를 짧게 유지하고 무거운 판단표는 여기로 분리한다.</li>
+        <li><strong><code>scripts/</code></strong> — 실제 계산·작업을 하는 스크립트. 예: <code>token-usage.py</code>.</li>
+      </ul>
+      <div class="note">
+        <span class="tag">한 줄 요약</span>
+        <p><code>description</code> = 언제 켜지나. <strong>body</strong> = 켜진 뒤 뭘 하나. 이 둘을 분리해서 생각하면 스킬 설계가 쉬워진다.</p>
+      </div>
+    </section>
+
+    <!-- 02 -->
+    <section id="create">
+      <h2><span class="kicker">제작</span>만드는 법 — 기능 지정 + 생성 프롬프트</h2>
+      <p>스킬 하나를 만들 때 정할 것은 넷이다.</p>
+      <ol class="steps">
+        <li><strong>이름</strong> — <code>.claude/skills/&lt;이름&gt;/</code> 디렉터리와 <code>SKILL.md</code>의 <code>name</code>.</li>
+        <li><strong>발동 조건(<code>description</code>)</strong> — 어떤 발화에 뜰지. <strong>트리거 발화 예를 구체적으로</strong> 나열한다. 여기가 제일 중요하다.</li>
+        <li><strong>body 지침</strong> — 발동 후 무엇을 어떤 순서로 할지.</li>
+        <li><strong>분리 여부</strong> — 세부 기준이 길면 <code>references/</code>로, 실제 계산이 필요하면 <code>scripts/</code>로 뺀다.</li>
+      </ol>
+
+      <div class="note warn">
+        <span class="tag">핵심 판단</span>
+        <p><code>description</code>이 곧 발동 스위치다. <strong>모호하면 안 뜨고, 너무 넓으면 오발동</strong>한다. "문서 잘 만들기"는 모호해서 안 걸리고, "무언가를 만들 때"는 넓어서 아무 데나 걸린다. 실제 사용자가 쓸 법한 <strong>발화 예 몇 개</strong>를 그대로 박아 넣는 것이 가장 잘 작동한다.</p>
+      </div>
+
+      <h3>생성 프롬프트 템플릿</h3>
+      <p>손으로 <code>SKILL.md</code>를 짜지 말고, 아래를 Claude에 붙여넣어 만들게 한다. <code>&lt;...&gt;</code>만 바꾼다.</p>
+      <div class="code">
+        <div class="lbl"><span class="path">Claude Code에 붙여넣기</span><button class="copy">복사</button></div>
+<pre><code>.claude/skills/&lt;이름&gt;/SKILL.md 스킬을 만들어줘.
+
+발동 조건: "&lt;예: 이 리포트 예쁘게 만들어줘&gt;", "&lt;예: 슬라이드 만들어줘&gt;"
+  류의 발화. description 에 이런 트리거 발화 예를 그대로 넣어서
+  자동으로 뜨게 해줘. 너무 넓게 잡아서 아무 데나 뜨지 않게 범위를 좁혀줘.
+
+하는 일(body): &lt;발동 후 따를 지침을 순서대로&gt;
+
+분리: 세부 기준이 길면 references/ 로 나눠주고,
+  실제 계산·집계가 필요하면 scripts/ 로 스크립트를 빼줘.</code></pre>
+      </div>
+      <p>이 템플릿의 포인트는 <strong>"description에 트리거 발화 예를 그대로 넣어라"</strong>와 <strong>"범위를 좁혀라"</strong> 두 문장이다. 이게 안 뜨는 스킬과 오발동하는 스킬을 동시에 막는다.</p>
+    </section>
+
+    <!-- 03 -->
+    <section id="skills">
+      <h2><span class="kicker">번들</span>이 템플릿에 들어 있는 스킬 5종</h2>
+      <p>레포의 <code>.claude/skills/</code>에 이미 5개가 들어 있다. 각각 <code>name</code>/<code>description</code>은 실제 파일 그대로다. 새 스킬을 만들 때 이 다섯 개가 좋은 견본이다.</p>
+
+      <h3>anti-ai-slop — 시각·글쓰기 품질 게이트</h3>
+      <div class="code">
+        <div class="lbl"><span class="path">.claude/skills/anti-ai-slop/SKILL.md — frontmatter</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-k">name</span>: anti-ai-slop
+<span class="tok-k">description</span>: 이미지·HTML·SVG·슬라이드·PDF 등 시각 산출물과 문서·리포트·카피 글쓰기를 생성·수정하기 전 반드시 발동한다. 그라데이션·글로우·장식 모션 등 AI 특유의 조악한(slop) 디자인을 차단하고, 상투어·균질 구조·불릿 남발 등 AI 티가 나는 글쓰기 흔적을 제거한다. 정보 위계·여백·타이포·근거·절제로 시니어 실무자가 만든 수준의 고급 산출물을 만드는 품질 게이트.</code></pre>
+      </div>
+      <p>이미지·HTML·SVG·슬라이드·PDF 같은 <strong>시각 산출물</strong>과 문서·리포트·카피 <strong>글</strong>을 만들기 직전에 걸리는 게이트다. 그라데이션·글로우·장식 모션 같은 slop 디자인과, 상투어·균질한 문단 구조·불릿 남발 같은 AI 글쓰기 지문을 차단한다. 세부 기준은 <code>references/</code>의 visual-craft·slides-pdf·writing-tells 세 갈래로 분리돼 있어, 만드는 산출물 종류에 맞는 것만 읽는다.</p>
+      <p><strong>발화 예:</strong> "이 리포트 예쁘게 만들어줘", "슬라이드/HTML 만들어줘" — 지금 이 페이지도 이 게이트를 거쳐 만들었다.</p>
+
+      <h3>changelog — 되돌릴 수 없는 결정 기록</h3>
+      <div class="code">
+        <div class="lbl"><span class="path">.claude/skills/changelog/SKILL.md — frontmatter</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-k">name</span>: changelog
+<span class="tok-k">description</span>: 되돌릴 수 없는 결정과 그 근거를 시간순으로 changelog/changelog.md에 기록한다. 아키텍처·의존성·API 계약 변경 시 사용. push/PR 직전 changelog-reminder 훅이 매니페스트 변경을 감지하면 이 스킬로 기록할지 검토한다.</code></pre>
+      </div>
+      <p>아키텍처·의존성·API 계약처럼 <strong>나중에 "왜 이렇게 했지"가 나올 결정</strong>과 그 근거를 <code>changelog/changelog.md</code>에 <strong>append-only</strong>로 남긴다. 짝이 되는 <code>changelog-reminder</code> 훅이 push/PR 직전 매니페스트 변경을 감지하면 이 스킬로 기록할지 검토하게 밀어준다(훅은 강의 4편).</p>
+      <p><strong>발화 예:</strong> "이 결정 기록해줘", 또는 의존성을 교체한 직후.</p>
+
+      <h3>handoff — 세션 인계</h3>
+      <div class="code">
+        <div class="lbl"><span class="path">.claude/skills/handoff/SKILL.md — frontmatter</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-k">name</span>: handoff
+<span class="tok-k">description</span>: 세션 인계. 컨텍스트가 차거나 세션을 끝낼 때 진행상황·결정·다음 할 일을 남겨 다음 세션이 이어가게 한다. "핸드오프", "이어서 작업", "인계/컨텍스트 정리", "세션 정리" 요청에 사용.</code></pre>
+      </div>
+      <p>컨텍스트가 차거나 세션을 끝낼 때 <strong>진행상황·결정·다음 할 일</strong>을 <code>.handoff.md</code>(레포 루트)에 정리한다. <code>precompact-handoff</code> 훅이 압축 직전 남긴 <strong>기계적 스냅샷</strong>을, 사람이 읽을 인계문으로 다듬는 것도 이 스킬의 몫이다.</p>
+      <p><strong>발화 예:</strong> "핸드오프", "이어서 작업", "세션 정리".</p>
+
+      <h3>scaffold — 프로젝트 초기 구조 생성</h3>
+      <div class="code">
+        <div class="lbl"><span class="path">.claude/skills/scaffold/SKILL.md — frontmatter</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-k">name</span>: scaffold
+<span class="tok-k">description</span>: 새 프로젝트나 하위 모듈의 초기 구조(스캐폴딩)를 만들 때 발동한다. "next.js/go/rust/java(spring)/typescript/react/vue 스캐폴딩 만들어줘", "프로젝트 초기 셋업", "보일러플레이트", "새 프로젝트 시작" 류의 발화에 반응한다. 공식 스캐폴더를 최신 명령으로 실행한 뒤 CLI가 안 만드는 구조·린터·CI를 얹는다.</code></pre>
+      </div>
+      <p>손으로 템플릿을 찍지 않고 각 생태계의 <strong>공식 스캐폴더</strong>(create-next-app·cargo·create-vue·Spring Initializr 등)를 최신 명령으로 실행한 뒤, CLI가 만들지 않는 디렉터리 구조·린터·포매터·CI를 얹는다. CRA 같은 <strong>죽은 도구를 차단</strong>하고 YAGNI 구조를 강제한다. 세부는 <code>references/</code>의 js-ts·go-rust·java-spring로 분리.</p>
+      <p><strong>발화 예:</strong> "next.js 스캐폴딩 만들어줘", "새 프로젝트 시작".</p>
+
+      <h3>token-usage — 세션 토큰 집계</h3>
+      <div class="code">
+        <div class="lbl"><span class="path">.claude/skills/token-usage/SKILL.md — frontmatter</span><button class="copy">복사</button></div>
+<pre><code><span class="tok-k">name</span>: token-usage
+<span class="tok-k">description</span>: 현재/특정 세션의 토큰 사용량을 집계한다. "토큰 얼마나 사용", "토큰 측정", "토큰 사용량", "이번 세션 토큰", "token usage" 류 발화에 발동한다. input·output·cache creation/read를 나눠 보여주고 총합을 낸다.</code></pre>
+      </div>
+      <p>세션 transcript의 토큰을 <strong>input·output·cache creation/read</strong>로 나눠 집계하고 총합을 낸다. 실제 계산은 body 지침이 아니라 동반 스크립트 <code>.claude/scripts/token-usage.py</code>가 한다 — <strong>scripts/를 동반하는 스킬</strong>의 대표 예다.</p>
+      <p><strong>발화 예:</strong> "토큰 얼마나 썼어", "토큰 측정".</p>
+    </section>
+
+    <!-- 04 -->
+    <section id="run">
+      <h2><span class="kicker">실행</span>발화로 부르기 · 스크립트 동반 스킬 돌리기</h2>
+      <p>스킬은 대개 <strong>발화만으로 자동 발동</strong>한다. 이름을 외울 필요가 없다. 아래는 이 5종의 대표 트리거 발화다.</p>
+      <div class="tblwrap">
+      <table>
+        <thead><tr><th>스킬</th><th>이런 말을 하면 뜬다</th></tr></thead>
+        <tbody>
+          <tr><td><code>anti-ai-slop</code></td><td>"이 리포트 예쁘게", "슬라이드/HTML 만들어줘"</td></tr>
+          <tr><td><code>changelog</code></td><td>"이 결정 기록해줘", 의존성 교체 직후</td></tr>
+          <tr><td><code>handoff</code></td><td>"핸드오프", "이어서 작업", "세션 정리"</td></tr>
+          <tr><td><code>scaffold</code></td><td>"next.js 스캐폴딩 만들어줘", "새 프로젝트 시작"</td></tr>
+          <tr><td><code>token-usage</code></td><td>"토큰 얼마나 썼어", "토큰 측정"</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>발동 후 흐름</h3>
+      <p>스킬이 걸리면 Claude는 그 <strong>body 지침</strong>을 컨텍스트로 불러 그대로 따른다. body가 "이 경우엔 <code>references/writing-tells.md</code>를 봐라"라고 시키면, <strong>필요한 순간에만</strong> 그 참조 파일을 읽는다. 이렇게 body는 얇게 두고 무거운 기준은 references로 미뤄, 안 쓸 때는 컨텍스트를 안 먹는다.</p>
+
+      <h3>스크립트를 동반하는 스킬 — token-usage</h3>
+      <p><code>token-usage</code>처럼 실제 계산이 필요한 스킬은 발동 후 body가 동반 스크립트를 실행한다. 직접 돌려볼 수도 있다.</p>
+      <div class="code">
+        <div class="lbl"><span class="path">터미널 (레포 루트)</span><button class="copy">복사</button></div>
+<pre><code>python3 .claude/scripts/token-usage.py            <span class="tok-c"># 최신 세션 자동 탐색</span>
+python3 .claude/scripts/token-usage.py &lt;파일.jsonl&gt;  <span class="tok-c"># 특정 세션 지정</span></code></pre>
+      </div>
+      <div class="note ok">
+        <span class="tag">요령</span>
+        <p>발화로 "토큰 얼마나 썼어"라고만 해도 스킬이 뜨고, 그 안에서 위 스크립트를 알아서 돌린다. 위 명령은 스킬 밖에서 직접 확인하고 싶을 때의 우회로다.</p>
+      </div>
+    </section>
+
+    <!-- 05 -->
+    <section id="test">
+      <h2><span class="kicker">검증</span>새 스킬이 실제로 발동하는지 테스트</h2>
+      <p>스킬을 만들었으면 <strong>정말 뜨는지</strong>를 확인해야 한다. 방법은 단순하다 — 트리거에 해당하는 발화를 실제로 해보고 스킬이 걸리는지 본다.</p>
+      <ol class="steps">
+        <li><strong>트리거 발화를 그대로 쳐본다.</strong> <code>description</code>에 넣은 발화 예와 비슷한 문장을 Claude에 입력한다.</li>
+        <li><strong>스킬이 뜨는지 확인한다.</strong> 해당 스킬이 발동해 body 지침대로 움직이면 성공이다.</li>
+        <li><strong>안 뜨면 <code>description</code>을 보강한다.</strong> 트리거 문구를 더 구체적으로, 실제 쓸 법한 발화 예를 몇 개 더 박아 넣는다.</li>
+        <li><strong>엉뚱하게 뜨면 범위를 좁힌다.</strong> 너무 넓은 표현을 걷어내고 조건을 명확히 한다.</li>
+      </ol>
+
+      <h3>증상별 조치</h3>
+      <div class="tblwrap">
+      <table>
+        <thead><tr><th>증상</th><th>원인·조치</th></tr></thead>
+        <tbody>
+          <tr><td>안 뜬다</td><td><code>description</code>이 모호하다. 트리거 문구를 구체화하고 실제 발화 예를 추가</td></tr>
+          <tr><td>엉뚱할 때 뜬다</td><td><code>description</code> 범위가 너무 넓다. 조건을 좁히고 과한 표현을 제거</td></tr>
+          <tr><td>스크립트 스킬이 계산을 안 함</td><td>스크립트 경로와 <code>python3</code> 설치 확인. <code>.claude/scripts/</code> 경로가 맞는지 점검</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="note">
+        <span class="tag">반복이 정상</span>
+        <p>한 번에 완벽한 <code>description</code>은 드물다. <strong>발동 → 관찰 → description 조정</strong>을 두세 번 돌리면서 "뜰 때 뜨고, 안 뜰 때 안 뜨는" 지점을 찾는 게 정석이다.</p>
+      </div>
+
+      <footer>
+        <p>스킬의 실체는 <code>.claude/skills/&lt;name&gt;/SKILL.md</code> 하나. <code>description</code>이 발동 스위치, body가 지침, <code>references/</code>·<code>scripts/</code>가 선택 자산이다.</p>
+        <div class="next">
+          <a href="02-commands-guide.html">&larr; 이전 · 커맨드 가이드</a>
+          <a href="04-hooks-guide.html">다음 · 훅 가이드 &rarr;</a>
+        </div>
+      </footer>
+    </section>
+  </main>
+</div>
+<script>
+  // 목차·본문 앵커: 호스트 SPA 라우터가 해시 변경을 가로채 rehydrate 에러를 내므로,
+  // 기본 해시 이동을 막고 직접 스크롤한다.
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var target = document.getElementById(a.getAttribute('href').slice(1));
+      if(!target) return;
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.code').querySelector('pre code');
+      var text = code.innerText;
+      navigator.clipboard.writeText(text).then(function(){
+        var old = btn.textContent;
+        btn.textContent = '복사됨';
+        btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = old; btn.classList.remove('done'); }, 1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>
